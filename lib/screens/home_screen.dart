@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:yinzo/screens/budget_screen.dart';
 import 'package:yinzo/screens/conversations_screen.dart';
 import 'package:yinzo/screens/home_tab_view_screen.dart';
-import 'package:yinzo/screens/openstreetmapscreen/localisation_map.screen.dart';
 import 'package:yinzo/screens/scheduled_visit_screen.dart';
 import 'package:icons_plus/icons_plus.dart' as ip;
 import 'package:yinzo/screens/settings_screen.dart';
@@ -19,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     HomeTabViewScreen(),
     const ConversationsScreen(),
-    const LocationMapScreen(),
+    const BudgetScreen(),
     ScheduledVisitScreen(),
     const SettingsScreen(),
   ];
@@ -37,22 +37,27 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         items: const [
           BottomNavigationBarItem(
+            tooltip: "Découvrir des logements en location",
             icon: Icon(Icons.explore_outlined),
             label: "Explorer",
           ),
           BottomNavigationBarItem(
+            tooltip: "Voir les discussions",
             icon: Icon(ip.EvaIcons.message_circle_outline),
             label: "Messages",
           ),
           BottomNavigationBarItem(
-            icon: Icon(ip.Iconsax.map_outline, size: 45),
-            label: "Map",
+            tooltip: "Voir et calculer votre budget",
+            icon: Icon(ip.Clarity.wallet_line),
+            label: "Mon budget",
           ),
           BottomNavigationBarItem(
+            tooltip: "Rendez-vous",
             icon: Icon(Icons.calendar_today),
             label: "RDV",
           ),
           BottomNavigationBarItem(
+            tooltip: "Paramètres",
             icon: Icon(ip.Clarity.settings_line),
             label: "Paramètres",
           ),

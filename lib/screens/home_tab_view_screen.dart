@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yinzo/screens/search_screen.dart';
 import 'package:yinzo/widgets/all_logement.dart';
 import 'package:icons_plus/icons_plus.dart' show OctIcons;
 
@@ -30,7 +31,9 @@ class HomeTabViewScreen extends StatelessWidget {
               padding: const EdgeInsets.only(right: 20),
               child: IconButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, "/budget");
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => SearchScreen()));
                 },
                 icon: const Icon(OctIcons.search, size: 25),
               ),
@@ -45,6 +48,26 @@ class HomeTabViewScreen extends StatelessWidget {
           ),
         ),
         body: TabBarView(children: _tabViews),
+        floatingActionButtonLocation:
+            FloatingActionButtonLocation.miniCenterFloat,
+        floatingActionButton: FloatingActionButton.extended(
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.black.withValues(alpha: 0.8),
+          tooltip: 'Map',
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          onPressed: () {
+            Navigator.of(context).pushNamed('/map');
+          },
+          label: Row(
+            children: [
+              Icon(Icons.map_outlined),
+              SizedBox(width: 10),
+              const Text("Map", style: TextStyle(fontSize: 18)),
+            ],
+          ),
+        ),
       ),
     );
   }
