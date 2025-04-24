@@ -41,7 +41,6 @@ class _BudgetHistoryScreenState extends State<BudgetHistoryScreen> {
         child: ValueListenableBuilder(
           valueListenable: BudgetHistory.getBudgetHistoryBox().listenable(),
           builder: (context, box, _) {
-            // bool hasData = ;
             return !box.values.isNotEmpty
                 ? Padding(
                   padding: const EdgeInsets.all(28),
