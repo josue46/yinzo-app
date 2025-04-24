@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yinzo/screens/Resetpassword.screen.dart';
+import 'package:yinzo/screens/budget_history_screen.dart';
 import 'package:yinzo/screens/discussions.screen.dart';
 import 'package:yinzo/screens/forgotpassword.screen.dart';
 import 'package:yinzo/screens/home_screen.dart';
@@ -16,5 +17,6 @@ final Map<String, WidgetBuilder> routes = {
   '/login': (_) => SignInScreen(),
   '/forgot-password': (_) => ForgotPasswordScreen(),
   '/discussions': (_) => DiscussionsScreen(),
+  '/budget-history': (_) => BudgetHistoryScreen(),
   '/profile': (_) => ProfileScreen(),
 };
