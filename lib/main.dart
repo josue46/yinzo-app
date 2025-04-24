@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:yinzo/models/budget_history.dart';
 import 'package:yinzo/utils/urlpatterns.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
-  runApp(YinzoApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await BudgetHistory.initDatabase();
+  initializeDateFormatting('fr_FR').then((_) => runApp(YinzoApp()));
 }
 
 class YinzoApp extends StatelessWidget {
@@ -20,7 +24,7 @@ class YinzoApp extends StatelessWidget {
           seedColor: Color(0xFF2ECC71), // Couleur primaire
           secondary: Color(0xFF48C9B0), // Vert Menthe
         ),
-        scaffoldBackgroundColor: Color(0xFFF8F9FA), // Fond blanc cassé
+        scaffoldBackgroundColor: Color(0xFFF5F5F5), // Fond blanc cassé
         textTheme: TextTheme(
           headlineLarge: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),
           titleLarge: TextStyle(

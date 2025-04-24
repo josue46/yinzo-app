@@ -37,7 +37,7 @@ class DisplayArea extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
-        "$title : ${toVerify.toStringAsFixed(2)} CDF",
+        "$title : ${toVerify.toStringAsFixed(2)} \$",
         style: TextStyle(
           fontSize: 18,
           color:
