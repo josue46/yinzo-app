@@ -42,6 +42,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
     },
   ];
 
+  int currentImage = 1;
   double userRating = 3.5;
   final TextEditingController _commentController = TextEditingController();
 
@@ -99,9 +100,15 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                 children: [
                   FlutterCarousel(
                     options: FlutterCarouselOptions(
-                      height: 300,
+                      height: 400,
                       viewportFraction: 1.0,
                       enableInfiniteScroll: true,
+                      floatingIndicator: false,
+                      onPageChanged: (index, _) {
+                        setState(() {
+                          currentImage = index + 1;
+                        });
+                      },
                       autoPlay: true,
                       autoPlayCurve: Curves.easeInOut,
                       autoPlayAnimationDuration: const Duration(
@@ -122,6 +129,24 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                             ),
                           );
                         }).toList(),
+                  ),
+                  Positioned(
+                    right: 15,
+                    bottom: 25,
+                    child: Container(
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 5,
+                        horizontal: 10,
+                      ),
+                      child: Center(
+                        child: Text("$currentImage/${imageUrls.length}"),
+                      ),
+                    ),
                   ),
                   Positioned(
                     top: 10,
@@ -151,7 +176,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const Padding(padding: EdgeInsets.only(top: 5)),
 
               // Détails
               Padding(
@@ -170,15 +195,98 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                           ),
                         ),
                         InkWell(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => MessagesScreen(username: "Luis"),
-                              ),
+                          onTap: () async {
+                            await showModalBottomSheet(
+                              context: context,
+                              builder: (context) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(10),
+                                      topRight: Radius.circular(10),
+                                    ),
+                                  ),
+                                  height: 210,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 5,
+                                      top: 5,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          width: 48,
+                                          height: 5,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey.shade300,
+                                            borderRadius: BorderRadius.circular(
+                                              5,
+                                            ),
+                                          ),
+                                        ),
+                                        ListTile(
+                                          leading: Icon(Icons.message),
+                                          title: Text("Envoyer un message"),
+                                          iconColor:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (_) => MessagesScreen(
+                                                      username: "Luis",
+                                                    ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        ListTile(
+                                          leading: Icon(Icons.phone_forwarded),
+                                          iconColor:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                          title: Text("Passer un appel"),
+                                          onTap: () {
+                                            // Logique pour passer un appel
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                        ListTile(
+                                          leading: Icon(Icons.report),
+                                          iconColor:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                          title: Text("Signaler ce logement"),
+                                          onTap: () {
+                                            // Logique pour signaler le logement
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                        ListTile(
+                                          leading: Icon(Icons.block),
+                                          iconColor:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                          title: Text("Bloquer l'utilisateur"),
+                                          onTap: () {
+                                            // Logique pour bloquer l'utilisateur
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             );
                           },
-                          child: Icon(Icons.message_rounded),
+                          child: Icon(Icons.more_vert),
                         ),
                       ],
                     ),
@@ -190,7 +298,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                         color: Colors.grey.shade700,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const Padding(padding: EdgeInsets.only(top: 16)),
                     const Divider(),
 
                     // Notation
@@ -275,7 +383,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const Padding(padding: EdgeInsets.only(top: 10)),
 
                     ...commentaires.map((comment) {
                       return Padding(
