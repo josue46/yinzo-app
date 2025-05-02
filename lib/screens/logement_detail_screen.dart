@@ -1,9 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:yinzo/screens/messages_screen.dart';
 
 class LogementDetailsScreen extends StatefulWidget {
@@ -45,7 +42,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
     },
   ];
 
-  int current_image = 1;
+  int currentImage = 1;
   double userRating = 3.5;
   final TextEditingController _commentController = TextEditingController();
 
@@ -109,7 +106,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                       floatingIndicator: false,
                       onPageChanged: (index, _) {
                         setState(() {
-                          current_image = index + 1;
+                          currentImage = index + 1;
                         });
                       },
                       autoPlay: true,
@@ -147,7 +144,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                         horizontal: 10,
                       ),
                       child: Center(
-                        child: Text("$current_image/${imageUrls.length}"),
+                        child: Text("$currentImage/${imageUrls.length}"),
                       ),
                     ),
                   ),
@@ -229,13 +226,16 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                                           ),
                                         ),
                                         ListTile(
-                                          leading: Icon(Icons.message),
-                                          title: Text("Envoyer un message"),
+                                          leading: Icon(Icons.chat),
+                                          title: Text(
+                                            "Envoyer un message au propriétaire",
+                                          ),
                                           iconColor:
                                               Theme.of(
                                                 context,
                                               ).colorScheme.primary,
                                           onTap: () {
+                                            Navigator.pop(context);
                                             Navigator.of(context).push(
                                               MaterialPageRoute(
                                                 builder:
@@ -252,7 +252,9 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                                               Theme.of(
                                                 context,
                                               ).colorScheme.primary,
-                                          title: Text("Passer un appel"),
+                                          title: Text(
+                                            "Passer un appel au propriétaire",
+                                          ),
                                           onTap: () {
                                             // Logique pour passer un appel
                                             Navigator.pop(context);
