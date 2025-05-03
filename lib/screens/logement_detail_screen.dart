@@ -103,7 +103,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                       height: 400,
                       viewportFraction: 1.0,
                       enableInfiniteScroll: true,
-                      floatingIndicator: false,
+                      showIndicator: false,
                       onPageChanged: (index, _) {
                         setState(() {
                           currentImage = index + 1;
@@ -194,104 +194,123 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        InkWell(
-                          onTap: () async {
-                            await showModalBottomSheet(
-                              context: context,
-                              builder: (context) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      topRight: Radius.circular(10),
-                                    ),
-                                  ),
-                                  height: 210,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 5,
-                                      top: 5,
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          width: 48,
-                                          height: 5,
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey.shade300,
-                                            borderRadius: BorderRadius.circular(
-                                              5,
-                                            ),
-                                          ),
+                        Row(
+                          children: [
+                            InkWell(
+                              child: Icon(
+                                Icons.pin_drop_sharp,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              onTap: () {
+                                // Logique pour afficher la carte
+                              },
+                            ),
+                            const SizedBox(width: 5),
+                            InkWell(
+                              onTap: () async {
+                                await showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(10),
+                                          topRight: Radius.circular(10),
                                         ),
-                                        ListTile(
-                                          leading: Icon(Icons.chat),
-                                          title: Text(
-                                            "Envoyer un message au propriétaire",
-                                          ),
-                                          iconColor:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.primary,
-                                          onTap: () {
-                                            Navigator.pop(context);
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder:
-                                                    (_) => MessagesScreen(
-                                                      username: "Luis",
-                                                    ),
+                                      ),
+                                      height: 210,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 5,
+                                          top: 5,
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              width: 48,
+                                              height: 5,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey.shade300,
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
                                               ),
-                                            );
-                                          },
+                                            ),
+                                            ListTile(
+                                              leading: Icon(Icons.chat),
+                                              title: Text(
+                                                "Envoyer un message au propriétaire",
+                                              ),
+                                              iconColor:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder:
+                                                        (_) => MessagesScreen(
+                                                          username: "Luis",
+                                                        ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                            ListTile(
+                                              leading: Icon(
+                                                Icons.phone_forwarded,
+                                              ),
+                                              iconColor:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
+                                              title: Text(
+                                                "Passer un appel au propriétaire",
+                                              ),
+                                              onTap: () {
+                                                // Logique pour passer un appel
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            ListTile(
+                                              leading: Icon(Icons.report),
+                                              iconColor:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
+                                              title: Text(
+                                                "Signaler ce logement",
+                                              ),
+                                              onTap: () {
+                                                // Logique pour signaler le logement
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            ListTile(
+                                              leading: Icon(Icons.block),
+                                              iconColor:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
+                                              title: Text(
+                                                "Bloquer l'utilisateur",
+                                              ),
+                                              onTap: () {
+                                                // Logique pour bloquer l'utilisateur
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
                                         ),
-                                        ListTile(
-                                          leading: Icon(Icons.phone_forwarded),
-                                          iconColor:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.primary,
-                                          title: Text(
-                                            "Passer un appel au propriétaire",
-                                          ),
-                                          onTap: () {
-                                            // Logique pour passer un appel
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                        ListTile(
-                                          leading: Icon(Icons.report),
-                                          iconColor:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.primary,
-                                          title: Text("Signaler ce logement"),
-                                          onTap: () {
-                                            // Logique pour signaler le logement
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                        ListTile(
-                                          leading: Icon(Icons.block),
-                                          iconColor:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.primary,
-                                          title: Text("Bloquer l'utilisateur"),
-                                          onTap: () {
-                                            // Logique pour bloquer l'utilisateur
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                      ),
+                                    );
+                                  },
                                 );
                               },
-                            );
-                          },
-                          child: Icon(Icons.more_vert),
+                              child: Icon(Icons.more_vert),
+                            ),
+                          ],
                         ),
                       ],
                     ),

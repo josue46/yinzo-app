@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:yinzo/screens/budget_screen.dart';
 import 'package:yinzo/screens/conversations_screen.dart';
 import 'package:yinzo/screens/home_tab_view_screen.dart';
+import 'package:yinzo/screens/profile_screen.dart';
 import 'package:yinzo/screens/scheduled_visit_screen.dart';
-import 'package:icons_plus/icons_plus.dart' as ip;
-import 'package:yinzo/screens/settings_screen.dart';
+import 'package:icons_plus/icons_plus.dart' show Iconsax, EvaIcons, Clarity;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const ConversationsScreen(),
     const BudgetScreen(),
     ScheduledVisitScreen(),
-    const SettingsScreen(),
+    const ProfileScreen(),
   ];
 
   @override
@@ -38,28 +38,33 @@ class _HomeScreenState extends State<HomeScreen> {
         items: const [
           BottomNavigationBarItem(
             tooltip: "Découvrir des logements en location",
-            icon: Icon(Icons.explore_outlined),
-            label: "Explorer",
+            icon: Icon(Iconsax.home_1_outline),
+            activeIcon: Icon(Iconsax.home_bold),
+            label: "Acceuil",
           ),
           BottomNavigationBarItem(
             tooltip: "Voir les discussions",
-            icon: Icon(ip.EvaIcons.message_circle_outline),
+            icon: Icon(EvaIcons.message_circle_outline),
+            activeIcon: Icon(EvaIcons.message_circle),
             label: "Messages",
           ),
           BottomNavigationBarItem(
             tooltip: "Voir et calculer votre budget",
-            icon: Icon(ip.Clarity.wallet_line),
+            icon: Icon(Clarity.wallet_line),
+            activeIcon: Icon(Clarity.wallet_solid),
             label: "Mon budget",
           ),
           BottomNavigationBarItem(
             tooltip: "Rendez-vous",
             icon: Icon(Icons.calendar_today),
+            activeIcon: Icon(Icons.calendar_today),
             label: "RDV",
           ),
           BottomNavigationBarItem(
-            tooltip: "Paramètres",
-            icon: Icon(ip.Clarity.settings_line),
-            label: "Paramètres",
+            tooltip: "Mon compte",
+            icon: Icon(Icons.account_circle_outlined),
+            activeIcon: Icon(Icons.account_circle),
+            label: "Moi",
           ),
         ],
         type: BottomNavigationBarType.fixed,

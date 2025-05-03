@@ -22,20 +22,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ListTile(
-                onTap: () => Navigator.pushNamed(context, "/profile"),
-                leading: Icon(
-                  size: 38,
-                  Icons.account_circle,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                title: const Text("Mon profile"),
-                trailing: Icon(Icons.arrow_forward_ios),
-              ),
-            ),
-            Divider(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ListTile(
                 onTap: () {},
                 leading: Icon(
                   ip.Iconsax.heart_bold,

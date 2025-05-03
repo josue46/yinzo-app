@@ -6,6 +6,7 @@ class MyCustomForm extends StatelessWidget {
   final TextInputType? keyboardType;
   final bool? autofocus;
   final String? Function(String?) validator;
+  final String? hintText;
 
   const MyCustomForm({
     super.key,
@@ -14,6 +15,7 @@ class MyCustomForm extends StatelessWidget {
     required this.validator,
     this.keyboardType,
     this.autofocus,
+    this.hintText,
   });
 
   @override
@@ -23,6 +25,7 @@ class MyCustomForm extends StatelessWidget {
       keyboardType: keyboardType ?? TextInputType.name,
       controller: controller,
       decoration: InputDecoration(
+        hintText: hintText,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
         labelText: label,
       ),

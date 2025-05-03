@@ -47,7 +47,7 @@ class _AllLogementWidgetState extends State<AllLogementWidget> {
               Stack(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 50),
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
                     child: GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
