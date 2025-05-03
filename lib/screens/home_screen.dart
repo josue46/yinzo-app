@@ -3,7 +3,6 @@ import 'package:yinzo/screens/budget_screen.dart';
 import 'package:yinzo/screens/conversations_screen.dart';
 import 'package:yinzo/screens/home_tab_view_screen.dart';
 import 'package:yinzo/screens/profile_screen.dart';
-import 'package:yinzo/screens/scheduled_visit_screen.dart';
 import 'package:icons_plus/icons_plus.dart' show Iconsax, EvaIcons, Clarity;
 
 class HomeScreen extends StatefulWidget {
@@ -18,7 +17,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _pages = [
     HomeTabViewScreen(),
-    ScheduledVisitScreen(),
     const ConversationsScreen(),
     const BudgetScreen(),
     const ProfileScreen(),
@@ -41,12 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Iconsax.home_1_outline),
             activeIcon: Icon(Iconsax.home_bold),
             label: "Acceuil",
-          ),
-          BottomNavigationBarItem(
-            tooltip: "Rendez-vous",
-            icon: Icon(Icons.calendar_today),
-            activeIcon: Icon(Icons.calendar_today),
-            label: "RDV",
           ),
           BottomNavigationBarItem(
             tooltip: "Voir les discussions",

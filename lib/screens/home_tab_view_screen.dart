@@ -14,7 +14,7 @@ class HomeTabViewScreen extends StatelessWidget {
   ];
 
   final List<Widget> _tabViews = [
-    AllLogementWidget(),
+    const AllLogementWidget(),
     const Center(child: Text("Maisons")),
     const Center(child: Text("Appartements")),
     const Center(child: Text("Studios")),
@@ -28,7 +28,7 @@ class HomeTabViewScreen extends StatelessWidget {
         appBar: AppBar(
           actions: [
             Padding(
-              padding: const EdgeInsets.only(right: 20),
+              padding: const EdgeInsets.only(right: 10),
               child: IconButton(
                 onPressed: () {
                   Navigator.of(
@@ -36,6 +36,15 @@ class HomeTabViewScreen extends StatelessWidget {
                   ).push(MaterialPageRoute(builder: (_) => SearchScreen()));
                 },
                 icon: const Icon(OctIcons.search, size: 25),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/schedule/appointment');
+                },
+                icon: const Icon(Icons.calendar_today, size: 25),
               ),
             ),
           ],
