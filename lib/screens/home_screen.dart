@@ -18,9 +18,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _pages = [
     HomeTabViewScreen(),
+    ScheduledVisitScreen(),
     const ConversationsScreen(),
     const BudgetScreen(),
-    ScheduledVisitScreen(),
     const ProfileScreen(),
   ];
 
@@ -43,6 +43,12 @@ class _HomeScreenState extends State<HomeScreen> {
             label: "Acceuil",
           ),
           BottomNavigationBarItem(
+            tooltip: "Rendez-vous",
+            icon: Icon(Icons.calendar_today),
+            activeIcon: Icon(Icons.calendar_today),
+            label: "RDV",
+          ),
+          BottomNavigationBarItem(
             tooltip: "Voir les discussions",
             icon: Icon(EvaIcons.message_circle_outline),
             activeIcon: Icon(EvaIcons.message_circle),
@@ -53,12 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Clarity.wallet_line),
             activeIcon: Icon(Clarity.wallet_solid),
             label: "Mon budget",
-          ),
-          BottomNavigationBarItem(
-            tooltip: "Rendez-vous",
-            icon: Icon(Icons.calendar_today),
-            activeIcon: Icon(Icons.calendar_today),
-            label: "RDV",
           ),
           BottomNavigationBarItem(
             tooltip: "Mon compte",
