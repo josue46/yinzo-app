@@ -3,7 +3,7 @@ import 'package:yinzo/screens/Resetpassword.screen.dart';
 import 'package:yinzo/screens/budget_history_screen.dart';
 import 'package:yinzo/screens/discussions.screen.dart';
 import 'package:yinzo/screens/forgotpassword.screen.dart';
-import 'package:yinzo/screens/home_screen.dart';
+import 'package:yinzo/screens/main_screen.dart';
 import 'package:yinzo/screens/login.screen.dart';
 import 'package:yinzo/screens/openstreetmapscreen/localisation_map.screen.dart';
 import 'package:yinzo/screens/scheduled_visit_screen.dart';
@@ -11,7 +11,7 @@ import 'package:yinzo/screens/settings_screen.dart';
 import 'package:yinzo/screens/signup.screen.dart';
 
 final Map<String, WidgetBuilder> routes = {
-  '/': (_) => HomeScreen(),
+  '/': (_) => MainScreen(),
   '/map': (_) => LocationMapScreen(),
   '/sinup': (_) => SignUpScreen(),
   'reset-password': (_) => ResetPasswordScreen(),

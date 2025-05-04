@@ -226,43 +226,50 @@ class _AllLogementWidgetState extends State<AllLogementWidget> {
                                 ),
                               ),
                               const SizedBox(height: 20),
+
+                              // Buttons
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  OutlinedButton.icon(
-                                    icon: Icon(Icons.phone),
-                                    style: OutlinedButton.styleFrom(
-                                      minimumSize: Size(200, 45),
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      icon: Icon(Icons.phone),
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: Size(200, 45),
+                                      ),
+                                      label: const Text(
+                                        "Appeler",
+                                        style: TextStyle(fontSize: 17),
+                                      ),
+                                      onPressed: () {},
                                     ),
-                                    label: const Text(
-                                      "Appeler",
-                                      style: TextStyle(fontSize: 17),
-                                    ),
-                                    onPressed: () {},
                                   ),
-                                  ElevatedButton.icon(
-                                    icon: Icon(Icons.chat),
-                                    style: ElevatedButton.styleFrom(
-                                      minimumSize: Size(200, 45),
-                                      shape: StadiumBorder(),
-                                      backgroundColor:
-                                          Theme.of(context).primaryColor,
+                                  SizedBox(width: 15),
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      icon: Icon(Icons.chat),
+                                      style: ElevatedButton.styleFrom(
+                                        minimumSize: Size(200, 45),
+                                        shape: StadiumBorder(),
+                                        backgroundColor:
+                                            Theme.of(context).primaryColor,
+                                      ),
+                                      label: const Text(
+                                        "Message",
+                                        style: TextStyle(fontSize: 17),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder:
+                                                (ctx) => MessagesScreen(
+                                                  username: "Josué Luis",
+                                                ),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                    label: const Text(
-                                      "Message",
-                                      style: TextStyle(fontSize: 17),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder:
-                                              (ctx) => MessagesScreen(
-                                                username: "Josué Luis",
-                                              ),
-                                        ),
-                                      );
-                                    },
                                   ),
                                 ],
                               ),

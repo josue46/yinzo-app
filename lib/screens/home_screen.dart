@@ -1,65 +1,65 @@
 import 'package:flutter/material.dart';
-import 'package:yinzo/screens/budget_screen.dart';
-import 'package:yinzo/screens/conversations_screen.dart';
-import 'package:yinzo/screens/home_tab_view_screen.dart';
-import 'package:yinzo/screens/profile_screen.dart';
-import 'package:icons_plus/icons_plus.dart' show Iconsax, EvaIcons, Clarity;
+import 'package:yinzo/screens/search_screen.dart';
+import 'package:yinzo/widgets/all_logement.dart';
+import 'package:icons_plus/icons_plus.dart' show OctIcons;
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-
-  final List<Widget> _pages = [
-    HomeTabViewScreen(),
-    const ConversationsScreen(),
-    const BudgetScreen(),
-    const ProfileScreen(),
-  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(
-            tooltip: "Découvrir des logements en location",
-            icon: Icon(Iconsax.home_1_outline),
-            activeIcon: Icon(Iconsax.home_bold),
-            label: "Acceuil",
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: const Text(
+          'Yinzo',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => SearchScreen()));
+              },
+              icon: const Icon(OctIcons.search, size: 25),
+            ),
           ),
-          BottomNavigationBarItem(
-            tooltip: "Voir les discussions",
-            icon: Icon(EvaIcons.message_circle_outline),
-            activeIcon: Icon(EvaIcons.message_circle),
-            label: "Messages",
-          ),
-          BottomNavigationBarItem(
-            tooltip: "Voir et calculer votre budget",
-            icon: Icon(Clarity.wallet_line),
-            activeIcon: Icon(Clarity.wallet_solid),
-            label: "Mon budget",
-          ),
-          BottomNavigationBarItem(
-            tooltip: "Mon compte",
-            icon: Icon(Icons.account_circle_outlined),
-            activeIcon: Icon(Icons.account_circle),
-            label: "Moi",
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/schedule/appointment');
+              },
+              icon: const Icon(Icons.calendar_today, size: 25),
+            ),
           ),
         ],
-        type: BottomNavigationBarType.fixed,
+      ),
+      body: SafeArea(child: AllLogementWidget()),
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.miniCenterFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.black.withValues(alpha: 0.8),
+        tooltip: 'Map',
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        onPressed: () {
+          Navigator.of(context).pushNamed('/map');
+        },
+        label: Row(
+          children: [
+            Icon(Icons.map_outlined),
+            SizedBox(width: 10),
+            const Text("Map", style: TextStyle(fontSize: 18)),
+          ],
+        ),
       ),
     );
   }
