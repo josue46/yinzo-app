@@ -25,7 +25,15 @@ class HomeTabViewScreen extends StatelessWidget {
     return DefaultTabController(
       length: _categories.length,
       child: Scaffold(
+        backgroundColor: Colors.grey[100],
         appBar: AppBar(
+          elevation: 0,
+          title: const Text(
+            'Yinzo',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.white,
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 10),
@@ -48,7 +56,7 @@ class HomeTabViewScreen extends StatelessWidget {
               ),
             ),
           ],
-          title: Text('Explore', style: TextStyle(fontSize: 25)),
+          // title: Text('Explore', style: TextStyle(fontSize: 25)),
           bottom: TabBar(
             tabAlignment: TabAlignment.start,
             tabs: _categories,
