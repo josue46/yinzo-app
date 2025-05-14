@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class ShowCategories extends StatefulWidget {
-  List<String> categories;
+  final List<String> categories;
+  final Function(String slug) onCategorySelected;
   int selectedContainerIndex;
 
   ShowCategories({
     super.key,
     required this.categories,
+    required this.onCategorySelected,
     this.selectedContainerIndex = 0,
   });
 
@@ -21,27 +23,31 @@ class _ShowCategoriesState extends State<ShowCategories> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: List.generate(widget.categories.length, (int index) {
+        children: List.generate(widget.categories.length, (index) {
+          final isSelected = widget.selectedContainerIndex == index;
+
           return GestureDetector(
             onTap: () {
               setState(() {
                 widget.selectedContainerIndex = index;
               });
+
+              final slug = widget.categories[index].toLowerCase();
+              widget.onCategorySelected(slug);
             },
             child: AnimatedContainer(
-              duration: Duration(milliseconds: 250),
-              margin: EdgeInsets.only(left: 20),
+              duration: const Duration(milliseconds: 250),
+              margin: const EdgeInsets.only(left: 20),
               width: 102,
               height: 32,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color:
-                    widget.selectedContainerIndex == index
+                    isSelected == true
                         ? Theme.of(context).primaryColor
-                        : Colors.white,
+                        : Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,
                     blurRadius: 5,
@@ -54,7 +60,7 @@ class _ShowCategoriesState extends State<ShowCategories> {
                 style: TextStyle(
                   fontSize: 14,
                   color:
-                      widget.selectedContainerIndex == index
+                      isSelected
                           ? Colors.white
                           : Colors.black.withValues(alpha: 0.7),
                 ),

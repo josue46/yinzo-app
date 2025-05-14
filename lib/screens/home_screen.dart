@@ -13,10 +13,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: const Text(
-          'Yinzo',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-        ),
+        title: Text('Yinzo', style: const TextStyle(fontFamily: "Inter")),
         centerTitle: true,
         backgroundColor: Colors.white,
         actions: [
@@ -57,7 +54,10 @@ class HomeScreen extends StatelessWidget {
           children: [
             Icon(Icons.map_outlined),
             SizedBox(width: 10),
-            const Text("Map", style: TextStyle(fontSize: 18)),
+            const Text(
+              "Map",
+              style: TextStyle(fontSize: 18, fontFamily: "Inter"),
+            ),
           ],
         ),
       ),
