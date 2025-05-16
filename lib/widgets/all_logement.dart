@@ -43,7 +43,12 @@ class _AllLogementWidgetState extends State<AllLogementWidget> {
                 ),
                 child: TextField(
                   controller: _searchController,
-                  // onChanged: provider.setSearchQuery,
+                  onChanged: (value) {
+                    Future.delayed(
+                      const Duration(seconds: 1),
+                      () => provider.setSearchQuery(value),
+                    );
+                  },
                   decoration: InputDecoration(
                     hintText: "Rechercher un logement...",
                     hintStyle: const TextStyle(fontFamily: "Poppins"),

@@ -59,7 +59,8 @@ class LogementArray extends StatelessWidget {
                         width: double.infinity,
                         fit: BoxFit.cover,
                         errorWidget:
-                            (context, url, error) => const Icon(Icons.error),
+                            (context, url, error) =>
+                                const Icon(Icons.broken_image, size: 50),
                       ),
                     );
                   },

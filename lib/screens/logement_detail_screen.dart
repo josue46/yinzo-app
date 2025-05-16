@@ -1,10 +1,13 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:yinzo/core/providers/logement_provider.dart';
 import 'package:yinzo/screens/messages_screen.dart';
+import 'package:intl/intl.dart';
 
+// ignore: must_be_immutable
 class LogementDetailsScreen extends StatefulWidget {
   LogementDetailsScreen({super.key, required this.logementId});
 
@@ -21,30 +24,6 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
     'assets/images/Front_main_page.jpg',
     'assets/images/Gallery_House_Main.jpg',
   ];
-
-  // final List<Map<String, dynamic>> commentaires = [
-  //   {
-  //     "nom": "Kernel Malik",
-  //     "texte": "Très bon logement, bien situé. J'aime bien !",
-  //     "note": 4.5,
-  //   },
-  //   {
-  //     "nom": "Josué P.",
-  //     "texte": "Le propriétaire est très sympa !",
-  //     "note": 5.0,
-  //   },
-  //   {
-  //     "nom": "Luis M.",
-  //     "texte": "Un peu éloigné du centre mais très calme.",
-  //     "note": 3.5,
-  //   },
-  //   {
-  //     "nom": "Ir Malik",
-  //     "texte":
-  //         "Les toilettes ne sont pas très moderne, mais à part ça j'ai bien aimé.",
-  //     "note": 3.0,
-  //   },
-  // ];
 
   int currentImage = 1;
   double userRating = 3.5;
@@ -65,6 +44,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
     if (logement == null) {
       return const Center(child: CircularProgressIndicator());
     }
+    final commission = logement.commissionMonth;
     return SafeArea(
       child: Scaffold(
         persistentFooterButtons: [
@@ -81,11 +61,16 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.grey.shade700,
+                      fontFamily: 'Poppins',
                     ),
                   ),
                   Text(
-                    "Garantie ${logement.warranty}+${logement.commissionMonth} mois",
-                    style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+                    "Garantie ${logement.warranty}${commission != 0 ? '+$commission' : ''} mois",
+                    style: TextStyle(
+                      fontSize: 17,
+                      color: Colors.grey.shade700,
+                      fontFamily: 'Poppins',
+                    ),
                   ),
                 ],
               ),
@@ -93,7 +78,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(145, 45),
-                  backgroundColor: Theme.of(context).primaryColor,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -102,7 +87,11 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                 ),
                 child: const Text(
                   "Réserver",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Inter',
+                  ),
                 ),
               ),
             ],
@@ -139,16 +128,26 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                           ),
                         ),
                         items:
-                            imageUrls.map((url) {
+                            logement.images.map((url) {
                               return ClipRRect(
                                 borderRadius: BorderRadius.only(
                                   bottomLeft: Radius.circular(2),
                                   bottomRight: Radius.circular(2),
                                 ),
-                                child: Image.asset(
-                                  url,
-                                  fit: BoxFit.cover,
+                                child: CachedNetworkImage(
+                                  imageUrl: url,
+                                  placeholder:
+                                      (context, url) => const Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                  height: 180,
                                   width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorWidget:
+                                      (context, url, error) => const Icon(
+                                        Icons.broken_image,
+                                        size: 50,
+                                      ),
                                 ),
                               );
                             }).toList(),
@@ -167,7 +166,9 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                             horizontal: 10,
                           ),
                           child: Center(
-                            child: Text("$currentImage/${imageUrls.length}"),
+                            child: Text(
+                              "$currentImage/${logement.images.length}",
+                            ),
                           ),
                         ),
                       ),
@@ -221,12 +222,10 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                               children: [
                                 InkWell(
                                   child: Icon(
-                                    Icons.pin_drop_sharp,
+                                    Icons.location_on,
                                     color: Theme.of(context).primaryColor,
                                   ),
-                                  onTap: () {
-                                    // Logique pour afficher la carte
-                                  },
+                                  onTap: () {},
                                 ),
                                 const SizedBox(width: 5),
                                 propositionModal(context),
@@ -234,7 +233,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const Padding(padding: EdgeInsets.only(top: 8)),
                         Text(
                           "${logement.numberOfRooms} chambre${logement.numberOfRooms > 1 ? 's' : ''}",
                           style: TextStyle(
@@ -242,16 +241,15 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                             color: Colors.grey.shade700,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const Padding(padding: EdgeInsets.only(top: 8)),
                         Text(
                           logement.description,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 17,
                             color: Colors.grey.shade700,
                           ),
                         ),
                         const Padding(padding: EdgeInsets.only(top: 16)),
-
                         const Divider(),
                         Text(
                           "Ce logement est proposé par",
@@ -260,7 +258,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        const Padding(padding: EdgeInsets.only(top: 10)),
                         ListTile(
                           leading: CircleAvatar(
                             maxRadius: 30,
@@ -281,9 +279,9 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                             children: [
                               IconButton(
                                 style: IconButton.styleFrom(
-                                  backgroundColor: Colors.white38,
-                                  foregroundColor:
-                                      Theme.of(context).primaryColor,
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  foregroundColor: Colors.white,
                                 ),
                                 icon: Icon(Icons.phone),
                                 onPressed: () {
@@ -293,9 +291,9 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                               const Padding(padding: EdgeInsets.only(right: 8)),
                               IconButton(
                                 style: IconButton.styleFrom(
-                                  backgroundColor: Colors.white38,
-                                  foregroundColor:
-                                      Theme.of(context).primaryColor,
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  foregroundColor: Colors.white,
                                 ),
                                 icon: Icon(Icons.chat),
                                 onPressed: () {
@@ -313,9 +311,23 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                             ],
                           ),
                         ),
-                        // const Divider(),
+                        const Divider(),
                         const SizedBox(height: 15),
 
+                        // Liste des avis
+                        Text(
+                          "Avis des utilisateurs (${logement.numberComments} avis)",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Padding(padding: EdgeInsets.only(top: 10)),
+
+                        ...provider.commentsLogement.map((comment) {
+                          return displayCommentInfos(comment);
+                        }),
+                        const SizedBox(height: 30),
                         // Notation
                         const Text(
                           "",
@@ -327,7 +339,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                         const SizedBox(height: 10),
                         // ✍️ Commentaire
                         const Text(
-                          "Laissez un avis",
+                          "Laissez votre avis et une note pour ce logement",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -351,6 +363,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                         ),
                         const SizedBox(height: 10),
                         Card(
+                          color: Colors.white,
                           child: TextField(
                             controller: _commentController,
                             maxLines: 3,
@@ -385,61 +398,6 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                           label: const Text("Envoyer"),
                           icon: const Icon(Icons.send),
                         ),
-                        const SizedBox(height: 30),
-
-                        // 💬 Liste des avis
-                        Text(
-                          "Avis des utilisateurs (${logement.numberComments} avis)",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Padding(padding: EdgeInsets.only(top: 10)),
-
-                        ...provider.commentsLogement.map((comment) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Card(
-                              color: Colors.grey.shade100,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: ListTile(
-                                title: Text(
-                                  '@${comment['author']['username']}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 4),
-                                    RatingBarIndicator(
-                                      rating: comment["author"]["note"],
-                                      itemBuilder:
-                                          (context, _) => const Icon(
-                                            Icons.star,
-                                            color: Colors.amber,
-                                          ),
-                                      itemCount: 5,
-                                      itemSize: 18,
-                                      direction: Axis.horizontal,
-                                    ),
-                                    Text(
-                                      DateTime.parse(
-                                        comment['timestamp'],
-                                      ).toString(),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(comment['content']),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
                       ],
                     ),
                   ),
@@ -447,6 +405,50 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Padding displayCommentInfos(comment) {
+    final DateTime commentDate = DateTime.parse(comment['timestamp']);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Card(
+        color: Colors.grey.shade100,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: ListTile(
+          title: Text(
+            '@${comment['author']['username']}',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              RatingBarIndicator(
+                rating: comment["author"]["note"],
+                itemBuilder:
+                    (context, _) => const Icon(Icons.star, color: Colors.amber),
+                itemCount: 5,
+                itemSize: 18,
+                direction: Axis.horizontal,
+              ),
+              Row(
+                children: [
+                  const Text(
+                    "Publié le",
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
+                  const Padding(padding: EdgeInsets.only(left: 5)),
+                  Text(DateFormat("dd/MM/yyyy").format(commentDate)),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(comment['content']),
+            ],
+          ),
         ),
       ),
     );

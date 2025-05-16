@@ -43,23 +43,27 @@ class LogementProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await Future.wait([
+      final responses = await Future.wait([
         dio.get("logement/$logementId/details/"),
         dio.get("load/comments/$logementId/"),
       ]);
-      for (int i = 0; i < response.length; i++) {
-        final res = response[i];
 
-        if (i == 0) {
-          _logementDetails = Logement.fromJson(
-            res.data as Map<String, dynamic>,
-          );
-        } else if (i == 1) {
-          _commentsLogement = res.data as List;
+      for (int i = 0; i < responses.length; i++) {
+        final response = responses[i];
+
+        switch (i) {
+          case 0:
+            _logementDetails = Logement.fromJson(
+              response.data as Map<String, dynamic>,
+            );
+            break;
+          case 1:
+            _commentsLogement = response.data as List;
+            break;
         }
       }
     } catch (error) {
-      print("Erreur: $error");
+      debugPrint("Erreur: $error");
     }
 
     _isLoading = false;
@@ -77,21 +81,24 @@ class LogementProvider with ChangeNotifier {
               .map((item) => Logement.fromJson(item as Map<String, dynamic>))
               .toList();
     } catch (error) {
-      print("Erreur lors du filtrage : $error");
+      debugPrint("Erreur lors du filtrage : $error");
     }
 
     _isLoading = false;
     notifyListeners();
   }
 
-  // // Fonction pour filtrer les logements par recherche
+  // Fonction pour filtrer les logements par recherche
   // void setSearchQuery(String query) {
   //   if (query.isEmpty) {
   //     _logements = List.from(_allLogements);
   //   } else {
-  //     _logements = _allLogements.where((logement) {
-  //       return logement.title.toLowerCase().contains(query.toLowerCase());
-  //     }).toList();
+  //     _logements =
+  //         _allLogements.where((logement) {
+  //           return logement.description.toLowerCase().contains(
+  //             query.toLowerCase(),
+  //           );
+  //         }).toList();
   //   }
   //   notifyListeners();
   // }

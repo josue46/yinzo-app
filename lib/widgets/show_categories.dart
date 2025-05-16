@@ -43,7 +43,7 @@ class _ShowCategoriesState extends State<ShowCategories> {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color:
-                    isSelected == true
+                    isSelected
                         ? Theme.of(context).primaryColor
                         : Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(20),
