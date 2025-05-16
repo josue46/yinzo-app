@@ -5,7 +5,6 @@ import 'package:yinzo/models/logement.dart';
 
 class LogementProvider with ChangeNotifier {
   List<Logement> _logements = [];
-  final List<Logement> _allLogements = [];
   bool _isLoading = false;
   Logement? _logementDetails;
   List _commentsLogement = [];
@@ -87,19 +86,4 @@ class LogementProvider with ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
-
-  // Fonction pour filtrer les logements par recherche
-  // void setSearchQuery(String query) {
-  //   if (query.isEmpty) {
-  //     _logements = List.from(_allLogements);
-  //   } else {
-  //     _logements =
-  //         _allLogements.where((logement) {
-  //           return logement.description.toLowerCase().contains(
-  //             query.toLowerCase(),
-  //           );
-  //         }).toList();
-  //   }
-  //   notifyListeners();
-  // }
 }
