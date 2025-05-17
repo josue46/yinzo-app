@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart' show OctIcons;
 
-Future<dynamic> showModalDialog(BuildContext context) {
+Future<dynamic> showModalDialog(
+  BuildContext context, {
+  void Function()? onTakePhoto,
+  void Function()? onImportPhoto,
+}) {
   return showDialog(
     barrierDismissible: false,
     context: context,
@@ -23,7 +27,7 @@ Future<dynamic> showModalDialog(BuildContext context) {
               ),
               SizedBox(height: 15),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: onImportPhoto,
                 style: ElevatedButton.styleFrom(
                   fixedSize: const Size(250, 40),
                   foregroundColor: Colors.white,
@@ -39,7 +43,7 @@ Future<dynamic> showModalDialog(BuildContext context) {
               ),
               const SizedBox(height: 12),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: onTakePhoto,
                 style: ElevatedButton.styleFrom(
                   fixedSize: const Size(250, 40),
                   foregroundColor: Colors.white,
