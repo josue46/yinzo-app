@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:yinzo/core/dio_helper.dart';
 import 'package:yinzo/models/category.dart';
 
@@ -15,7 +16,7 @@ class CategoryProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         _categories =
             (response.data as List)
-                .map((item) => Category.fromJson(item as Map<String, String>))
+                .map((item) => Category.fromJson(item as Map<String, dynamic>))
                 .toList();
         notifyListeners();
       } else {
@@ -24,5 +25,9 @@ class CategoryProvider with ChangeNotifier {
     } catch (error) {
       debugPrint("Une erreur s'est produite: $error");
     }
+  }
+
+  static CategoryProvider of(context, {bool listen = true}) {
+    return Provider.of<CategoryProvider>(context, listen: listen);
   }
 }

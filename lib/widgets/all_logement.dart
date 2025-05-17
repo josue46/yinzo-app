@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:yinzo/core/providers/category_provider.dart';
 import 'package:yinzo/core/providers/logement_provider.dart';
 import 'package:yinzo/models/logement.dart';
 import 'package:yinzo/widgets/logement_array.dart';
@@ -19,12 +20,17 @@ class _AllLogementWidgetState extends State<AllLogementWidget> {
   void initState() {
     super.initState();
     Provider.of<LogementProvider>(context, listen: false).loadLogements();
+    CategoryProvider.of(context, listen: false).loadCategories();
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<LogementProvider>(
       builder: (context, provider, _) {
+        final categories = CategoryProvider.of(context).categories;
+        if (categories.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
         return Column(
           children: [
             // Section Recherche
@@ -43,12 +49,6 @@ class _AllLogementWidgetState extends State<AllLogementWidget> {
                 ),
                 child: TextField(
                   controller: _searchController,
-                  onChanged: (value) {
-                    Future.delayed(
-                      const Duration(seconds: 1),
-                      () => provider.setSearchQuery(value),
-                    );
-                  },
                   decoration: InputDecoration(
                     hintText: "Rechercher un logement...",
                     hintStyle: const TextStyle(fontFamily: "Poppins"),
@@ -73,7 +73,7 @@ class _AllLogementWidgetState extends State<AllLogementWidget> {
 
             // Catégories
             ShowCategories(
-              categories: ["Tous", "Maisons", "Appartements", "Studios"],
+              categories: categories.map((category) => category.name).toList(),
               onCategorySelected: (slug) {
                 if (slug == "tous") {
                   provider.loadLogements();

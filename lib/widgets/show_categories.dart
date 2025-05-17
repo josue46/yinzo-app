@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
 class ShowCategories extends StatefulWidget {
   final List<String> categories;
   final Function(String slug) onCategorySelected;
-  int selectedContainerIndex;
 
-  ShowCategories({
+  const ShowCategories({
     super.key,
     required this.categories,
     required this.onCategorySelected,
-    this.selectedContainerIndex = 0,
   });
 
   @override
@@ -18,18 +15,20 @@ class ShowCategories extends StatefulWidget {
 }
 
 class _ShowCategoriesState extends State<ShowCategories> {
+  int selectedContainerIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: List.generate(widget.categories.length, (index) {
-          final isSelected = widget.selectedContainerIndex == index;
+          final isSelected = selectedContainerIndex == index;
 
           return GestureDetector(
             onTap: () {
               setState(() {
-                widget.selectedContainerIndex = index;
+                selectedContainerIndex = index;
               });
 
               final slug = widget.categories[index].toLowerCase();
