@@ -58,8 +58,8 @@ dependencies:
   icons_plus: ^5.0.0
   flutter_rating_bar: ^4.0.1
   flutter_carousel_widget: ^3.1.0
-  fl_chart: ^0.71.0
-  mime: ^1.0.4
+  fl_chart: ^1.0.0
+  mime: ^2.0.0
   google_fonts: ^6.2.1
   connectivity_plus: ^6.1.4
   internet_connection_checker: ^3.0.1

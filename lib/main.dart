@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yinzo/core/providers/category_provider.dart';
 import 'package:yinzo/core/providers/logement_provider.dart';
 import 'package:yinzo/models/budget_history.dart';
 import 'package:yinzo/utils/urlpatterns.dart';
@@ -19,6 +20,7 @@ class YinzoApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => LogementProvider()),
+        ChangeNotifierProvider(create: (context) => CategoryProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
