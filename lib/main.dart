@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yinzo/core/providers/category_provider.dart';
 import 'package:yinzo/core/providers/logement_provider.dart';
+import 'package:yinzo/core/providers/auth_provider.dart';
 import 'package:yinzo/models/budget_history.dart';
 import 'package:yinzo/utils/urlpatterns.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -19,8 +20,9 @@ class YinzoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => LogementProvider()),
-        ChangeNotifierProvider(create: (context) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => LogementProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
