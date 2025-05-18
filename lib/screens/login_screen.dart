@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:yinzo/utils/pattern.dart';
+import 'package:yinzo/core/providers/auth_provider.dart';
 import 'package:yinzo/widgets_function/build_textfield.dart';
+import 'package:yinzo/widgets_function/other_connection_providers.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,18 +13,25 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
 
-  void _submitLogin() {
+  void _submitLogin() async {
     if (_formKey.currentState!.validate()) {
-      // Envoyer les infos de login
-      print({
-        "email": _emailController.text,
-        "password": _passwordController.text,
-      });
+      final provider = AuthProvider.of(context, listen: false);
+      final result = await provider.login(
+        username: _usernameController.text,
+        password: _passwordController.text,
+      );
+      if (result != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(result)));
+      } else {
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      }
     }
   }
 
@@ -61,20 +69,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     // Email
                     buildTextField(
-                      _emailController,
-                      "Email",
-                      Icons.email,
+                      _usernameController,
+                      "Nom d'utilisateur ou Email",
+                      Icons.person_2,
                       inputType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Ce champ est requis';
-                        }
-                        final emailRegex = RegExp(emailPattern);
-                        if (!emailRegex.hasMatch(value)) {
-                          return 'Entrez un email valide';
-                        }
-                        return null;
-                      },
                     ),
 
                     // Password
@@ -108,14 +106,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       onPressed: _submitLogin,
-                      child: const Text(
-                        "Se connecter",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Inter',
-                        ),
-                      ),
+                      child:
+                          AuthProvider.of(context).isLoading
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                              : const Text(
+                                "Se connecter",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Inter',
+                                ),
+                              ),
                     ),
                     const SizedBox(height: 20),
 
@@ -143,6 +146,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 20),
+                    otherConnectionProviders(forAuthentication: true),
                   ],
                 ),
               ),

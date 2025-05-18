@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:yinzo/core/providers/auth_provider.dart';
 import 'package:yinzo/utils/pattern.dart';
+import 'package:yinzo/widgets/column_display_for_login_prompt.dart';
+import 'package:yinzo/widgets/row_display_for_login_prompt.dart';
 import 'package:yinzo/widgets_function/build_textfield.dart';
-import 'dart:io';
-
-import 'package:yinzo/widgets_function/show_modal_dialog.dart';
+import 'package:yinzo/widgets_function/other_connection_providers.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -15,8 +15,6 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final ImagePicker _picker = ImagePicker();
-  File? _profileImage;
   bool hidePassword = true;
 
   // Form controllers
@@ -26,26 +24,31 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> _pickImage({required ImageSource source}) async {
-    final pickedFile = await _picker.pickImage(source: source);
-    if (pickedFile != null) {
-      setState(() {
-        _profileImage = File(pickedFile.path);
-      });
-    }
-  }
-
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // Envoyer les données
-      print({
-        "username": _usernameController.text,
-        "first_name": _firstNameController.text,
-        "last_name": _lastNameController.text,
-        "email": _emailController.text,
-        "password": _passwordController.text,
-        "photo": _profileImage?.path,
-      });
+      final provider = AuthProvider.of(context, listen: false);
+
+      final errorMessage = await provider.signup(
+        username: _usernameController.text,
+        firstName: _firstNameController.text,
+        lastName: _lastNameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      if (errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red.shade600,
+          ),
+        );
+      } else {
+        // Rediriger uniquement si tout est OK
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/login', (route) => false);
+      }
     }
   }
 
@@ -80,38 +83,6 @@ class _SignupScreenState extends State<SignupScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // Profile Image Picker
-                    GestureDetector(
-                      onTap: () async {
-                        await showModalDialog(
-                          context,
-                          onTakePhoto: () {
-                            // Pick image from camera
-                            Navigator.of(context).pop();
-                            _pickImage(source: ImageSource.camera);
-                          },
-                          onImportPhoto: () {
-                            // Pick image from gallery
-                            Navigator.of(context).pop();
-                            _pickImage(source: ImageSource.gallery);
-                          },
-                        );
-                      },
-                      child: CircleAvatar(
-                        radius: 45,
-                        backgroundColor: Colors.grey.shade300,
-                        backgroundImage:
-                            _profileImage != null
-                                ? FileImage(_profileImage!)
-                                : null,
-                        child:
-                            _profileImage == null
-                                ? const Icon(Icons.camera_alt, size: 30)
-                                : null,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
                     // Fields
                     buildTextField(
                       _usernameController,
@@ -178,40 +149,26 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                       ),
                       onPressed: _submitForm,
-                      child: const Text(
-                        "Créer un compte",
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Inter',
-                        ),
-                      ),
+                      child:
+                          AuthProvider.of(context).isLoading
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                              : const Text(
+                                "Créer un compte",
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Inter',
+                                ),
+                              ),
                     ),
                     const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Vous avez déjà un compte ?",
-                          style: TextStyle(fontSize: 16, fontFamily: 'Inter'),
-                        ),
-                        const SizedBox(width: 5),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pushNamed('/login');
-                          },
-                          child: Text(
-                            "Se connecter",
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    MediaQuery.of(context).size.width >= 360
+                        ? RowDisplayForLoginPrompt()
+                        : ColumnDisplayForLoginPrompt(),
+                    const SizedBox(height: 20),
+                    otherConnectionProviders(forAuthentication: false),
                   ],
                 ),
               ),
