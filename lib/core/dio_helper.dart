@@ -6,20 +6,28 @@ class DioHelper {
   // getter for to get baseUrl
   static String get baseUrl => _baseUrl;
 
-  static Dio getDioInstanceWithBaseUrl({String? token}) {
-    Dio dio = Dio(BaseOptions(baseUrl: _baseUrl));
+  static Dio getDioInstanceWithBaseUrl() {
+    Dio dio = Dio(
+      BaseOptions(
+        baseUrl: _baseUrl,
+        connectTimeout: const Duration(seconds: 3),
+        sendTimeout: const Duration(seconds: 3),
+        receiveTimeout: const Duration(seconds: 5),
+      ),
+    );
+    return dio;
+  }
 
-    // if the token is provided, it is added in the headers.
-    if (token != null) {
-      dio.interceptors.add(
-        InterceptorsWrapper(
-          onRequest: (options, handler) {
-            options.headers["Authorizations"] = "Bearer $token";
-            handler.next(options);
-          },
-        ),
-      );
-    }
+  Dio putTokenInHeader(String token) {
+    final dio = DioHelper.getDioInstanceWithBaseUrl();
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          options.headers["Authorization"] = "Bearer $token";
+          handler.next(options);
+        },
+      ),
+    );
     return dio;
   }
 }

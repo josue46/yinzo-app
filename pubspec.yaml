@@ -63,6 +63,9 @@ dependencies:
   google_fonts: ^6.2.1
   connectivity_plus: ^6.1.4
   internet_connection_checker: ^3.0.1
+  permission_handler: ^11.0.0
+  file_picker: ^10.1.9
+  flutter_svg: ^2.1.0
 
 dev_dependencies:
   flutter_test:

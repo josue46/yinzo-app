@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yinzo/screens/publish_logement_screen.dart';
 import 'package:yinzo/widgets_function/build_profile.dart';
 import 'package:yinzo/widgets/mycustom_form.dart';
 
@@ -147,7 +148,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   buildProfileTile(
                     icon: Icons.add_home_rounded,
                     title: 'Ajouter un logement',
-                    onTap: () {},
+                    onTap:
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PublishLogementScreen(),
+                          ),
+                        ),
                   ),
                   buildProfileTile(
                     icon: Icons.settings,

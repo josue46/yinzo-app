@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:yinzo/core/dio_helper.dart';
@@ -85,5 +87,73 @@ class LogementProvider with ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<String?> publishLogement(
+    String token, {
+    required String description,
+    required String price,
+    required String warranty,
+    required String category,
+    required String location,
+    required String ownerNumber,
+    required String city,
+    required List<File> images,
+    int? visiteFee,
+    int? commissionMonth,
+    int? numberOfRooms,
+    bool? forRent,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+
+    // Convertir chaque image en MultipartFile
+    List<MultipartFile> multipartImages = [];
+    for (File image in images) {
+      String imageName = image.path.split("/").last;
+      multipartImages.add(
+        await MultipartFile.fromFile(image.path, filename: imageName),
+      );
+    }
+
+    final data = FormData.fromMap({
+      "description": description,
+      "price": price,
+      "category": category,
+      "location": location,
+      "owner_number": ownerNumber,
+      "city": city,
+      "warranty": warranty,
+      "visite_fee": visiteFee,
+      "commission_month": commissionMonth,
+      "number_of_rooms": numberOfRooms,
+      "for_rent": forRent,
+      "images": multipartImages,
+    });
+
+    final Dio request = DioHelper().putTokenInHeader(token);
+    try {
+      final response = await _sendData(request, data);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        const String successMessage = "Logement publié avec succès";
+        return successMessage;
+      }
+    } catch (error) {
+      const String errorMessage = "Erreur lors de la publication";
+      return "$errorMessage: $error";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+    return null;
+  }
+
+  Future<Response> _sendData(Dio request, FormData data) async {
+    return await request.post(
+      "logement/publish/",
+      data: data,
+      options: Options(headers: {"Content-Type": "multipart/form-data"}),
+    );
   }
 }
