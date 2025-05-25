@@ -2,7 +2,10 @@
     <!-- Permissions for internet_connection_checker -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    
+    <!-- Permissions for image_picker -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:label="yinzo"
         android:name="${applicationName}"
