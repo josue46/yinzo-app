@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ShowCategories extends StatefulWidget {
-  final List<String> categories;
+  final List<Map<String, String>> categories;
   final Function(String slug) onCategorySelected;
 
   const ShowCategories({
@@ -31,7 +31,7 @@ class _ShowCategoriesState extends State<ShowCategories> {
                 selectedContainerIndex = index;
               });
 
-              final slug = widget.categories[index].toLowerCase();
+              final String slug = widget.categories[index]["slug"]!;
               widget.onCategorySelected(slug);
             },
             child: AnimatedContainer(
@@ -55,7 +55,7 @@ class _ShowCategoriesState extends State<ShowCategories> {
                 ],
               ),
               child: Text(
-                widget.categories[index],
+                widget.categories[index]["name"]!,
                 style: TextStyle(
                   fontSize: 14,
                   color:

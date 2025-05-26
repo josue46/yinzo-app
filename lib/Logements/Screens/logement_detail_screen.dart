@@ -243,7 +243,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                         ),
                         const Padding(padding: EdgeInsets.only(top: 8)),
                         Text(
-                          logement.description,
+                          logement.description!,
                           style: TextStyle(
                             fontSize: 17,
                             color: Colors.grey.shade700,

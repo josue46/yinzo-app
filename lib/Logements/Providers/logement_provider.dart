@@ -19,20 +19,23 @@ class LogementProvider with ChangeNotifier {
 
   List get commentsLogement => _commentsLogement;
 
-  final Dio dio = DioService.getDioInstanceWithBaseUrl();
+  final Dio client = DioService.getDioInstanceWithBaseUrl();
 
   Future<void> loadLogements() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final response = await dio.get("logements/");
-      _logements =
-          (response.data as List)
-              .map((item) => Logement.fromJson(item as Map<String, dynamic>))
-              .toList();
+      final response = await client.get("logements/");
+      if (response.statusCode == 200) {
+        print(response.data);
+        _logements =
+            (response.data as List)
+                .map((item) => Logement.fromJson(item as Map<String, dynamic>))
+                .toList();
+      }
     } catch (error) {
-      print("Erreur: $error");
+      print("Erreur lors de la recupération des logements: $error");
     }
 
     _isLoading = false;
@@ -45,8 +48,8 @@ class LogementProvider with ChangeNotifier {
 
     try {
       final responses = await Future.wait([
-        dio.get("logement/$logementId/details/"),
-        dio.get("load/comments/$logementId/"),
+        client.get("logement/$logementId/details/"),
+        client.get("load/comments/$logementId/"),
       ]);
 
       for (int i = 0; i < responses.length; i++) {
@@ -76,7 +79,7 @@ class LogementProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await dio.get("filter/logements-by/category/$slug/");
+      final response = await client.get("filter/logements-by/category/$slug/");
       _logements =
           (response.data as List)
               .map((item) => Logement.fromJson(item as Map<String, dynamic>))

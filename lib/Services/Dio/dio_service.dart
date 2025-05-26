@@ -7,13 +7,7 @@ class DioService {
   static String get baseUrl => _baseUrl;
 
   static Dio getDioInstanceWithBaseUrl() {
-    Dio dio = Dio(
-      BaseOptions(
-        baseUrl: _baseUrl,
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
-      ),
-    );
+    Dio dio = Dio(BaseOptions(baseUrl: _baseUrl));
     return dio;
   }
 

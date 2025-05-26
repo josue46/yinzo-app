@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:yinzo/Chat/Screens/messages_screen.dart';
 import 'package:yinzo/Logements/Models/logement.dart';
 import 'package:yinzo/Logements/Screens/logement_detail_screen.dart';
@@ -10,11 +11,20 @@ class LogementArray extends StatelessWidget {
 
   final Logement logement;
 
+  void _callNumber(String phoneNumber) async {
+    final Uri url = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw 'Impossible d\'appeler ce numéro : $phoneNumber';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       color: Theme.of(context).cardColor,
-      elevation: 1,
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.only(bottom: 12, left: 15, right: 15),
       child: Column(
@@ -101,31 +111,34 @@ class LogementArray extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        '${logement.category} ${logement.forRent ? 'en location' : 'à vendre'} à ${logement.city}',
+                        '${logement.category} ${logement.forRent ? 'en location' : 'à vendre'}, ${logement.city}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
                       ),
                     ),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          WidgetSpan(
-                            child: Icon(
-                              Icons.star,
-                              color: Theme.of(context).primaryColor,
-                              size: 20,
+                    Visibility(
+                      visible: logement.averageRating != 0,
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            WidgetSpan(
+                              child: Icon(
+                                Icons.star,
+                                color: Theme.of(context).primaryColor,
+                                size: 20,
+                              ),
                             ),
-                          ),
-                          TextSpan(
-                            text: logement.averageRating.toStringAsFixed(2),
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black87,
+                            TextSpan(
+                              text: logement.averageRating.toStringAsFixed(2),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -142,6 +155,7 @@ class LogementArray extends StatelessWidget {
                           child: Icon(
                             Icons.pin_drop,
                             color: Theme.of(context).colorScheme.primary,
+                            size: 28,
                           ),
                         ),
                         TextSpan(
@@ -160,15 +174,6 @@ class LogementArray extends StatelessWidget {
                   '${logement.numberOfRooms} chambre${logement.numberOfRooms > 1 ? 's' : ''} •',
                   style: TextStyle(color: Colors.grey[600]),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  "${logement.rentPrice}\$/mois",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                    fontSize: 16,
-                  ),
-                ),
                 const SizedBox(height: 20),
 
                 // Buttons
@@ -185,7 +190,9 @@ class LogementArray extends StatelessWidget {
                           "Appeler",
                           style: TextStyle(fontSize: 17),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          _callNumber("+243${logement.ownerNumber!}");
+                        },
                       ),
                     ),
                     SizedBox(width: 15),
