@@ -5,7 +5,6 @@
     <!-- Permissions for image_picker -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <application
         android:label="yinzo"
         android:name="${applicationName}"

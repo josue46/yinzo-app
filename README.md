@@ -1,6 +1,6 @@
 # yinzo
 
-Yinzo est une application qui vous permet de trouver rapidement des maisons en location partout en RDC.
+A new Flutter project.
 
 ## Getting Started
 

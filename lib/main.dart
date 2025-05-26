@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:yinzo/core/providers/category_provider.dart';
-import 'package:yinzo/core/providers/logement_provider.dart';
-import 'package:yinzo/core/providers/auth_provider.dart';
-import 'package:yinzo/models/budget_history.dart';
-import 'package:yinzo/utils/urlpatterns.dart';
+import 'package:yinzo/Budgets/Model/budget_history.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:yinzo/Logements/Providers/category_provider.dart';
+import 'package:yinzo/Logements/Providers/logement_provider.dart';
+import 'package:yinzo/Users/Provider/auth_provider.dart';
+import 'package:yinzo/Utils/urlpatterns.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
