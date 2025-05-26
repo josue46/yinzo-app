@@ -1,67 +1,74 @@
 class Logement {
   final String id;
   final String address;
-  final String description;
-  final double rentPrice;
-  final int warranty;
-  final Map<String, dynamic> owner;
-  final String ownerNumber;
   final String city;
-  final double? visiteFee;
-  final int? commissionMonth;
-  final DateTime publishedDate;
-  final int numberOfRooms;
+  final Map<String, dynamic> owner;
   final bool forRent;
   final String category;
+  final int numberOfRooms;
   final List<String> images;
   final double averageRating;
-  final int numberComments;
-  final int reviews;
-  final int numberScheduledVisits;
+
+  // Champs uniquement présents dans lors des (détails)
+  final String? description;
+  final double? rentPrice;
+  final int? warranty;
+  final String? ownerNumber;
+  final DateTime? publishedDate;
+  final int? numberComments;
+  final int? reviews;
+  final int? numberScheduledVisits;
+  final int? commissionMonth;
+  final double? visiteFee;
 
   Logement({
     required this.id,
-    required this.rentPrice,
-    required this.warranty,
-    required this.owner,
-    required this.ownerNumber,
-    required this.city,
     required this.address,
-    required this.description,
-    required this.publishedDate,
-    required this.numberOfRooms,
+    required this.city,
+    required this.owner,
     required this.forRent,
     required this.category,
+    required this.numberOfRooms,
     required this.images,
     required this.averageRating,
-    required this.numberComments,
-    required this.reviews,
-    required this.numberScheduledVisits,
-    this.commissionMonth = 0,
-    this.visiteFee = 0,
+    this.description,
+    this.rentPrice,
+    this.warranty,
+    this.ownerNumber,
+    this.publishedDate,
+    this.numberComments,
+    this.reviews,
+    this.numberScheduledVisits,
+    this.commissionMonth,
+    this.visiteFee,
   });
 
   factory Logement.fromJson(Map<String, dynamic> json) {
     return Logement(
       id: json['id'],
-      description: json['description'],
-      rentPrice: json['rent_price'],
       address: json['address'],
-      averageRating: json['average_rating'],
-      category: json['category'],
       city: json['city'],
+      owner: json['owner'] ?? {},
       forRent: json['for_rent'],
-      images: List<String>.from(json['images'] ?? []),
-      numberComments: json['number_comments'],
+      category: json['category'],
       numberOfRooms: json['number_of_rooms'],
-      numberScheduledVisits: json['number_scheduled_visits'],
-      owner: json['owner'],
-      ownerNumber: json['owner_number'],
-      publishedDate: DateTime.parse(json['published_on']),
-      reviews: json['reviews'],
+      images: List<String>.from(json['images'] ?? []),
+      averageRating: (json['average_rating'] ?? 0.0).toDouble(),
+
+      // Champs uniquement disponibles dans les détails (nullables)
+      description: json['description'],
+      rentPrice: (json['rent_price'] as num?)?.toDouble(),
       warranty: json['warranty'],
+      ownerNumber: json['owner_number'],
+      publishedDate:
+          json['published_on'] != null
+              ? DateTime.tryParse(json['published_on'])
+              : null,
+      numberComments: json['number_comments'],
+      reviews: json['reviews'],
+      numberScheduledVisits: json['number_scheduled_visits'],
       commissionMonth: json['commission_month'],
-      visiteFee: json['visite_fee'],
+      visiteFee: (json['visite_fee'] as num?)?.toDouble(),
     );
   }
 }
