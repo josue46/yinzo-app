@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:yinzo/Chat/Screens/messages_screen.dart';
 import 'package:yinzo/Logements/Providers/logement_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:yinzo/Services/call_service.dart';
 
 // ignore: must_be_immutable
 class LogementDetailsScreen extends StatefulWidget {
@@ -32,10 +33,13 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<LogementProvider>(
-      context,
-      listen: false,
-    ).loadLogementDetails(logementId: widget.logementId);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Charger les détails du logement après le premier rendu
+      Provider.of<LogementProvider>(
+        context,
+        listen: false,
+      ).loadLogementDetails(logementId: widget.logementId);
+    });
   }
 
   @override
@@ -285,7 +289,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                                 ),
                                 icon: Icon(Icons.phone),
                                 onPressed: () {
-                                  // Logique pour passer un appel
+                                  callNumber("+243${logement.ownerNumber!}");
                                 },
                               ),
                               const Padding(padding: EdgeInsets.only(right: 8)),
@@ -337,7 +341,8 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        // ✍️ Commentaire
+
+                        // Commentaire
                         const Text(
                           "Laissez votre avis et une note pour ce logement",
                           style: TextStyle(
@@ -468,7 +473,7 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                   topRight: Radius.circular(10),
                 ),
               ),
-              height: 210,
+              height: MediaQuery.of(context).size.height * 0.3,
               child: Padding(
                 padding: const EdgeInsets.only(left: 5, top: 5),
                 child: Column(
@@ -480,28 +485,6 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                         color: Colors.grey.shade300,
                         borderRadius: BorderRadius.circular(5),
                       ),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.chat),
-                      title: Text("Envoyer un message au propriétaire"),
-                      iconColor: Theme.of(context).colorScheme.primary,
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => MessagesScreen(username: "Luis"),
-                          ),
-                        );
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.phone_forwarded),
-                      iconColor: Theme.of(context).colorScheme.primary,
-                      title: Text("Passer un appel au propriétaire"),
-                      onTap: () {
-                        // Logique pour passer un appel
-                        Navigator.pop(context);
-                      },
                     ),
                     ListTile(
                       leading: Icon(Icons.report),

@@ -1,24 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:yinzo/Chat/Screens/messages_screen.dart';
 import 'package:yinzo/Logements/Models/logement.dart';
 import 'package:yinzo/Logements/Screens/logement_detail_screen.dart';
+import 'package:yinzo/Services/call_service.dart';
 
 class LogementArray extends StatelessWidget {
   const LogementArray({super.key, required this.logement});
-
   final Logement logement;
-
-  void _callNumber(String phoneNumber) async {
-    final Uri url = Uri(scheme: 'tel', path: phoneNumber);
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    } else {
-      throw 'Impossible d\'appeler ce numéro : $phoneNumber';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +181,7 @@ class LogementArray extends StatelessWidget {
                           style: TextStyle(fontSize: 17),
                         ),
                         onPressed: () {
-                          _callNumber("+243${logement.ownerNumber!}");
+                          callNumber("+243${logement.ownerNumber!}");
                         },
                       ),
                     ),

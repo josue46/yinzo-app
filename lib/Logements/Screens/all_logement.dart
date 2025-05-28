@@ -4,6 +4,7 @@ import 'package:yinzo/Logements/Providers/category_provider.dart';
 import 'package:yinzo/Logements/Providers/logement_provider.dart';
 import 'package:yinzo/Logements/Widgets/logement_array.dart';
 import 'package:yinzo/Logements/Widgets/show_categories.dart';
+import 'package:yinzo/Services/Dio/dio_service.dart';
 
 class AllLogementScreen extends StatefulWidget {
   const AllLogementScreen({super.key});
@@ -14,7 +15,7 @@ class AllLogementScreen extends StatefulWidget {
 
 class _AllLogementScreenState extends State<AllLogementScreen> {
   final _searchController = TextEditingController();
-  final String _baseUrl = "http://192.168.29.146:8000";
+  final String _baseUrl = DioService.baseUrl;
 
   @override
   void initState() {
@@ -84,11 +85,13 @@ class _AllLogementScreenState extends State<AllLogementScreen> {
                       categories
                           .map((cat) => {"name": cat.name, "slug": cat.slug})
                           .toList(),
-                  onCategorySelected: (slug) {
-                    if (slug.toLowerCase() == "tous") {
-                      logementProvider.loadLogements();
+                  onCategorySelected: (slug) async {
+                    if (slug == "tous") {
+                      await logementProvider.loadLogements();
                     } else {
-                      logementProvider.filterByCategory(slug.toLowerCase());
+                      await logementProvider.filterByCategory(
+                        slug.toLowerCase(),
+                      );
                     }
                   },
                 ),

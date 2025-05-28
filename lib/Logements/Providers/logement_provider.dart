@@ -28,7 +28,6 @@ class LogementProvider with ChangeNotifier {
     try {
       final response = await client.get("logements/");
       if (response.statusCode == 200) {
-        print(response.data);
         _logements =
             (response.data as List)
                 .map((item) => Logement.fromJson(item as Map<String, dynamic>))
