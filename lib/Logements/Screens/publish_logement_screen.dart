@@ -6,7 +6,8 @@ import 'package:yinzo/Logements/Providers/category_provider.dart';
 import 'package:yinzo/Logements/Providers/logement_provider.dart';
 
 class PublishLogementScreen extends StatefulWidget {
-  const PublishLogementScreen({super.key});
+  final String? token;
+  const PublishLogementScreen({super.key, required this.token});
 
   @override
   State<PublishLogementScreen> createState() => _PublishLogementScreenState();
@@ -14,12 +15,36 @@ class PublishLogementScreen extends StatefulWidget {
 
 class _PublishLogementScreenState extends State<PublishLogementScreen> {
   final _formKey = GlobalKey<FormState>();
-  String? token;
+  final _scrollController = ScrollController();
+  // liste des villes officielles de la RDC
+  final List<String> cities = [
+    "Kinshasa",
+    "Matadi",
+    "Goma",
+    "Lubumbashi",
+    "Butembo",
+    "Mbuji-Mayi",
+    "Kananga",
+    "Bukavu",
+    "Kisangani",
+    "Kolwezi",
+    "Tshikapa",
+    "Likasi",
+    "Kolwezi",
+    "Beni",
+    "Uvira",
+    "Kikwit",
+    "Mbanza-Ngungu",
+    "Likasi",
+    "Kalemie",
+    "Boma",
+    "Bunia",
+  ];
 
+  // Controllers for form fields
   final TextEditingController rentPriceController = TextEditingController();
   final TextEditingController warrantyController = TextEditingController();
   final TextEditingController ownerNumberController = TextEditingController();
-  final TextEditingController cityController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController visiteFeeController = TextEditingController();
   final TextEditingController commissionMonthController =
@@ -30,27 +55,10 @@ class _PublishLogementScreenState extends State<PublishLogementScreen> {
   List<File> selectedImages = [];
   bool isForRent = true;
   String? selectedCategory;
+  String? selectedCity;
   int maxImages = 5;
 
-  /* GridView.builder(
-  shrinkWrap: true,
-  itemCount: selectedImages.length,
-  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-  itemBuilder: (context, index) {
-    return Image.file(selectedImages[index], fit: BoxFit.cover);
-  },
-  ) */
-
   Future<List<File>> pickMultipleImages() async {
-    /// This function allows the user to pick multiple images from their device.
-    // bool granted = await requestPermission();
-    // if (!granted) {
-    //   ScaffoldMessenger.of(
-    //     context,
-    //   ).showSnackBar(const SnackBar(content: Text("Permission refusée")));
-    //   return [];
-    // }
-
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       allowMultiple: true,
@@ -58,11 +66,12 @@ class _PublishLogementScreenState extends State<PublishLogementScreen> {
 
     if (result != null && result.files.isNotEmpty) {
       if (result.count > maxImages) {
-        // L'utilisateur a selectionné plus de 5 images.
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              "Selectionnez au maximun $maxImages images.\nNombre d'images selectionées: ${result.count}",
+            content: Text("Sélectionnez maximum $maxImages images"),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         );
@@ -70,41 +79,27 @@ class _PublishLogementScreenState extends State<PublishLogementScreen> {
       }
       return result.paths.map((path) => File(path!)).toList();
     } else {
-      // L'utilisateur a annulé la sélection
       return [];
     }
   }
 
-  void handlePublish(String token) async {
-    if (_formKey.currentState!.validate()) {
-      if (selectedImages.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Veuillez ajouter des images")),
-        );
-        return;
-      } else if (selectedImages.length > maxImages) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Vous avez depassé la limite des images autorisées."),
-          ),
-        );
-        return;
-      }
+  Future<void> handlePublish(String token) async {
+    if (!_formKey.currentState!.validate()) return;
 
-      if (selectedCategory == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Choisissez une catégorie pour votre logement pour permettre aux autres utilisateurs de le retrouver facilement.",
-            ),
-          ),
-        );
-        return;
-      }
+    if (selectedImages.isEmpty) {
+      _showErrorSnackbar("Veuillez ajouter des images");
+      return;
+    }
 
-      // Publication of logement
+    if (selectedCategory == null) {
+      _showErrorSnackbar("Veuillez sélectionner une catégorie");
+      return;
+    }
+
+    try {
       final message = await Provider.of<LogementProvider>(
         context,
+        listen: false,
       ).publishLogement(
         token,
         description: descriptionController.text,
@@ -113,17 +108,55 @@ class _PublishLogementScreenState extends State<PublishLogementScreen> {
         category: selectedCategory!,
         location: addressController.text,
         ownerNumber: ownerNumberController.text,
-        city: cityController.text,
+        city: selectedCity!,
         images: selectedImages,
         forRent: isForRent,
         numberOfRooms: int.tryParse(numberOfRoomsController.text) ?? 0,
         commissionMonth: int.tryParse(commissionMonthController.text) ?? 0,
         visiteFee: int.tryParse(visiteFeeController.text) ?? 0,
       );
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message!)));
+
+      _showSuccessSnackbar(message ?? "Logement publié avec succès");
+
+      // Nettoyage du formulaire après une publication réussie.
+      if (mounted) {
+        _formKey.currentState?.reset();
+        setState(() {
+          selectedImages = [];
+          selectedCategory = null;
+          selectedCity = null;
+        });
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    } catch (e) {
+      _showErrorSnackbar("Erreur lors de la publication: ${e.toString()}");
     }
+  }
+
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red[400],
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  void _showSuccessSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green[400],
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
@@ -131,89 +164,166 @@ class _PublishLogementScreenState extends State<PublishLogementScreen> {
     rentPriceController.dispose();
     warrantyController.dispose();
     ownerNumberController.dispose();
-    cityController.dispose();
     descriptionController.dispose();
     visiteFeeController.dispose();
     commissionMonthController.dispose();
     addressController.dispose();
     numberOfRoomsController.dispose();
-
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final provider = Provider.of<LogementProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Publier un logement"),
-        scrolledUnderElevation: 0,
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: Icon(Icons.arrow_back_ios_sharp),
-          tooltip: "Back",
-        ),
+        elevation: 0,
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 5, 16, 16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTextField(
-                      rentPriceController,
-                      "Prix du loyer",
-                      keyboardType: TextInputType.number,
-                    ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Informations de base",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontFamily: 'Inter',
+                    color: Colors.black87,
+                    fontSize: 25,
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _buildTextField(
-                      warrantyController,
-                      "Garantie",
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                ],
-              ),
-              _buildTextField(
-                ownerNumberController,
-                "Numéro du propriétaire",
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Champ requis";
-                  } else if (!RegExp(r'^[0-9]{9,15}$').hasMatch(value)) {
-                    return "Numéro invalide";
-                  }
-                  return null;
-                },
-              ),
-              _buildTextField(cityController, "Ville"),
-              _buildTextField(addressController, "Adresse"),
-              _buildTextField(
-                descriptionController,
-                "Description",
-                maxLines: 3,
-              ),
-              const SizedBox(height: 10),
-              Container(
-                width: double.infinity,
-                height: 150,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.white,
-                  border: Border.all(color: Colors.black12, width: 1),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                const SizedBox(height: 16),
+                _buildSectionCard(
+                  theme: theme,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            rentPriceController,
+                            "Prix du loyer*",
+                            icon: Icons.attach_money,
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildTextField(
+                            warrantyController,
+                            "Garantie*",
+                            icon: Icons.security,
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    _buildTextField(
+                      ownerNumberController,
+                      "Numéro du propriétaire*",
+                      icon: Icons.phone,
+                      keyboardType: TextInputType.phone,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Champ requis";
+                        } else if (!RegExp(r'^[0-9]{9,15}$').hasMatch(value)) {
+                          return "Numéro invalide";
+                        }
+                        return null;
+                      },
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            value: selectedCity,
+                            decoration: InputDecoration(
+                              labelText: "Ville*",
+                              prefixIcon: Icon(Icons.location_city),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            items:
+                                cities.map((city) {
+                                  return DropdownMenuItem<String>(
+                                    value: city,
+                                    child: Text(city),
+                                  );
+                                }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                selectedCity = value;
+                              });
+                            },
+                            validator:
+                                (value) =>
+                                    value == null
+                                        ? "Veuillez indiquer la ville où se trouve votre logement"
+                                        : null,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildTextField(
+                            numberOfRoomsController,
+                            "Nombre de chambres*",
+                            icon: Icons.meeting_room,
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    _buildTextField(
+                      addressController,
+                      "Adresse complète*",
+                      icon: Icons.map,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  "Description",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontFamily: 'Inter',
+                    color: Colors.black87,
+                    fontSize: 25,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildSectionCard(
+                  theme: theme,
+                  children: [
+                    _buildTextField(
+                      descriptionController,
+                      "Décrivez votre logement*",
+                      maxLines: 4,
+                      icon: Icons.description,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  "Images",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: Colors.black87,
+                    fontFamily: 'Inter',
+                    fontSize: 25,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildSectionCard(
+                  theme: theme,
                   children: [
                     GestureDetector(
                       onTap: () async {
@@ -225,195 +335,249 @@ class _PublishLogementScreenState extends State<PublishLogementScreen> {
                         }
                       },
                       child: Container(
-                        width: 40,
-                        height: 40,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
                           borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.add_photo_alternate_sharp,
-                            size: 30,
+                          border: Border.all(
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.3,
+                            ),
+                            width: 1.5,
                           ),
+                          color: theme.colorScheme.surfaceContainerHigh,
                         ),
-                      ),
-                    ),
-                    const Text(
-                      "Ajouter des images",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Inter',
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.cloud_upload,
+                              size: 48,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Ajoutez des photos",
+                              style: theme.textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "Sélectionnez jusqu'à $maxImages images",
+                              style: theme.textTheme.bodySmall,
+                            ),
+                            if (selectedImages.isNotEmpty) ...[
+                              const SizedBox(height: 16),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children:
+                                    selectedImages
+                                        .map(
+                                          (img) => Stack(
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                child: Image.file(
+                                                  File(img.path),
+                                                  width: 80,
+                                                  height: 80,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 4,
+                                                right: 4,
+                                                child: GestureDetector(
+                                                  onTap:
+                                                      () => setState(() {
+                                                        selectedImages.remove(
+                                                          img,
+                                                        );
+                                                      }),
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets.all(2),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black54,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(
+                                                      Icons.close,
+                                                      size: 16,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                        .toList(),
+                              ),
+                            ],
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTextField(
-                      visiteFeeController,
-                      "Frais de visite",
-                      keyboardType: TextInputType.number,
-                    ),
+                const SizedBox(height: 24),
+                Text(
+                  "Détails supplémentaires",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: Colors.black87,
+                    fontFamily: 'Inter',
+                    fontSize: 25,
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _buildTextField(
-                      commissionMonthController,
-                      "Commission (mois)",
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              MediaQuery.of(context).size.width >= 344 &&
-                      MediaQuery.of(context).size.width <= 430
-                  ? Column(
-                    children: [
-                      _buildTextField(
-                        numberOfRoomsController,
-                        "Nombre de chambres",
-                        keyboardType: TextInputType.number,
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: selectedCategory,
-                        decoration: const InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          focusColor: Colors.white,
-                          hoverColor: Colors.white,
-                          border: UnderlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                const SizedBox(height: 16),
+                _buildSectionCard(
+                  theme: theme,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            visiteFeeController,
+                            "Frais de visite",
+                            icon: Icons.money,
+                            keyboardType: TextInputType.number,
                           ),
                         ),
-                        items:
-                            CategoryProvider.of(context).categories.map((cat) {
-                              return DropdownMenuItem(
-                                value:
-                                    cat.name == 'Tous'
-                                        ? null
-                                        : cat.name.toLowerCase(),
-                                child:
-                                    cat.name == 'Tous'
-                                        ? const Text('Choisir une catégorie')
-                                        : Text(cat.name),
-                              );
-                            }).toList(),
-                        onChanged: (value) {
-                          setState(() => selectedCategory = value);
-                        },
-                        validator:
-                            (value) =>
-                                value == null
-                                    ? "Veuillez sélectionner une catégorie"
-                                    : null,
-                      ),
-                    ],
-                  )
-                  : Row(
-                    children: [
-                      Expanded(
-                        child: _buildTextField(
-                          numberOfRoomsController,
-                          "Nombre de chambres",
-                          keyboardType: TextInputType.number,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildTextField(
+                            commissionMonthController,
+                            "Commission (mois)",
+                            icon: Icons.calendar_month,
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: selectedCategory,
+                      decoration: InputDecoration(
+                        labelText: "Catégorie*",
+                        prefixIcon: Icon(Icons.category),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: selectedCategory,
-                          decoration: const InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            focusColor: Colors.white,
-                            hoverColor: Colors.white,
-                            border: UnderlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
+                      items:
+                          CategoryProvider.of(context).categories
+                              .where((cat) => cat.name != 'Tous')
+                              .map((cat) {
+                                return DropdownMenuItem(
+                                  value: cat.slug,
+                                  child: Text(cat.name),
+                                );
+                              })
+                              .toList(),
+                      onChanged: (value) {
+                        setState(() => selectedCategory = value);
+                      },
+                      validator:
+                          (value) =>
+                              value == null
+                                  ? "Veuillez sélectionner une catégorie"
+                                  : null,
+                    ),
+                    const SizedBox(height: 8),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        "Ce logement est à louer",
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                      secondary: Icon(
+                        isForRent ? Icons.home_work : Icons.home,
+                        color: theme.colorScheme.primary,
+                      ),
+                      value: isForRent,
+                      onChanged:
+                          (bool value) => setState(() => isForRent = value),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed:
+                        provider.isLoading
+                            ? null
+                            : () {
+                              if (widget.token != null)
+                                handlePublish(widget.token!);
+                            },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child:
+                        provider.isLoading
+                            ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                            : Text(
+                              "PUBLIER LE LOGEMENT",
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: Colors.white,
+                                letterSpacing: 1.2,
                               ),
                             ),
-                          ),
-                          items:
-                              CategoryProvider.of(context).categories.map((
-                                cat,
-                              ) {
-                                return DropdownMenuItem(
-                                  value:
-                                      cat.name == 'Tous'
-                                          ? null
-                                          : cat.name.toLowerCase(),
-                                  child:
-                                      cat.name == 'Tous'
-                                          ? const Text('Choisir une catégorie')
-                                          : Text(cat.name),
-                                );
-                              }).toList(),
-                          onChanged: (value) {
-                            setState(() => selectedCategory = value);
-                          },
-                          validator:
-                              (value) =>
-                                  value == null
-                                      ? "Veuillez sélectionner une catégorie"
-                                      : null,
-                        ),
-                      ),
-                    ],
-                  ),
-              CheckboxListTile(
-                controlAffinity: ListTileControlAffinity.trailing,
-                title: const Text(
-                  "Ce logement est-il à louer ?",
-                  style: TextStyle(fontSize: 14),
-                ),
-                activeColor: Theme.of(context).primaryColor,
-                contentPadding: EdgeInsets.zero,
-                value: isForRent,
-                onChanged: (bool? val) => setState(() => isForRent = val!),
-              ),
-
-              const SizedBox(height: 40),
-
-              if (selectedImages.isNotEmpty)
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children:
-                      selectedImages
-                          .map(
-                            (img) => Image.file(
-                              File(img.path),
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                          .toList(),
-                ),
-              ElevatedButton(
-                onPressed: () => handlePublish(token!),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: Theme.of(context).primaryColor,
-                ),
-                child: const Text(
-                  "Publier le logement",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontFamily: 'Poppins',
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                Text(
+                  "* Champs obligatoires",
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.outline,
+                  ),
+                ),
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({required List<Widget> children, ThemeData? theme}) {
+    return Card(
+      elevation: 1,
+      color: theme?.cardColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children:
+              children
+                  .map(
+                    (child) => Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: child,
+                    ),
+                  )
+                  .toList(),
         ),
       ),
     );
@@ -425,27 +589,19 @@ class _PublishLogementScreenState extends State<PublishLogementScreen> {
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
     String? Function(String?)? validator,
+    IconData? icon,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        validator:
-            validator ??
-            (value) => value == null || value.isEmpty ? "Champ requis" : null,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: Colors.white,
-          hoverColor: Colors.white,
-          focusColor: Colors.white,
-          labelText: label,
-          labelStyle: const TextStyle(fontFamily: "Inter"),
-          border: UnderlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-        ),
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      validator:
+          validator ??
+          (value) => value == null || value.isEmpty ? "Champ requis" : null,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: icon != null ? Icon(icon) : null,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

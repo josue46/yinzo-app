@@ -133,29 +133,30 @@ class LogementProvider with ChangeNotifier {
       "images": multipartImages,
     });
 
-    final Dio request = DioService().putTokenInHeader(token);
     try {
-      final response = await _sendData(request, data);
+      final response = await client.post(
+        "publish/logement/",
+        data: data,
+        options: Options(
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Authorization": "Bearer $token",
+          },
+        ),
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        const String successMessage = "Logement publié avec succès";
+        const String successMessage = "Votre logement a été publié";
         return successMessage;
       }
     } catch (error) {
       const String errorMessage = "Erreur lors de la publication";
+      print(error);
       return "$errorMessage: $error";
     } finally {
       _isLoading = false;
       notifyListeners();
     }
     return null;
-  }
-
-  Future<Response> _sendData(Dio request, FormData data) async {
-    return await request.post(
-      "logement/publish/",
-      data: data,
-      options: Options(headers: {"Content-Type": "multipart/form-data"}),
-    );
   }
 }

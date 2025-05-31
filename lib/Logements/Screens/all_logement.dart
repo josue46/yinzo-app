@@ -67,10 +67,13 @@ class _AllLogementScreenState extends State<AllLogementScreen> {
                         onPressed: () {},
                         // onPressed: _onSearch,
                       ),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () => _searchController.clear(),
-                      ),
+                      suffixIcon:
+                          _searchController.text.isNotEmpty
+                              ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () => _searchController.clear(),
+                              )
+                              : null,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -89,9 +92,7 @@ class _AllLogementScreenState extends State<AllLogementScreen> {
                     if (slug == "tous") {
                       await logementProvider.loadLogements();
                     } else {
-                      await logementProvider.filterByCategory(
-                        slug.toLowerCase(),
-                      );
+                      await logementProvider.filterByCategory(slug);
                     }
                   },
                 ),
