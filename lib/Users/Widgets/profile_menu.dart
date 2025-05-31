@@ -3,14 +3,16 @@ import 'package:flutter_svg/svg.dart';
 
 class ProfileMenu extends StatelessWidget {
   const ProfileMenu({
-    Key? key,
+    super.key,
     required this.text,
     required this.icon,
     this.press,
-  }) : super(key: key);
+    this.color,
+  });
 
   final String text, icon;
   final VoidCallback? press;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,7 @@ class ProfileMenu extends StatelessWidget {
             SvgPicture.string(
               icon,
               colorFilter: ColorFilter.mode(
-                Theme.of(context).primaryColor,
+                color ?? Theme.of(context).primaryColor,
                 BlendMode.srcIn,
               ),
               width: 22,

@@ -17,14 +17,38 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
+  late final AuthProvider _auth;
+
+  @override
+  void initState() {
+    super.initState();
+    _auth = AuthProvider.of(context, listen: false);
+  }
 
   void _submitLogin() async {
-    if (_formKey.currentState!.validate()) {
-      final provider = AuthProvider.of(context, listen: false);
-      final result = await provider.login(
+    if (!_formKey.currentState!.validate()) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 20),
+            Text("Connexion en cours..."),
+          ],
+        ),
+        duration: Duration(minutes: 1), // Longue durée qui sera annulée
+      ),
+    );
+
+    try {
+      final result = await _auth.login(
         username: _usernameController.text,
         password: _passwordController.text,
       );
+
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
       if (result != null) {
         ScaffoldMessenger.of(
           context,
@@ -32,6 +56,11 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erreur de connexion: ${e.toString()}")),
+      );
     }
   }
 
@@ -105,20 +134,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: _submitLogin,
-                      child:
-                          AuthProvider.of(context).isLoading
-                              ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                              : const Text(
-                                "Se connecter",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Inter',
-                                ),
-                              ),
+                      onPressed: () {
+                        FocusScope.of(context).unfocus();
+                        _submitLogin();
+                      },
+                      child: const Text(
+                        "Se connecter",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter',
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 20),
 

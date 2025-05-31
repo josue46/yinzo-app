@@ -152,7 +152,10 @@ class _SignupScreenState extends State<SignupScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: _submitForm,
+                      onPressed: () {
+                        FocusScope.of(context).unfocus();
+                        _submitForm();
+                      },
                       child:
                           AuthProvider.of(context).isLoading
                               ? const CircularProgressIndicator(
