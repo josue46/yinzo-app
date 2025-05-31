@@ -5,6 +5,7 @@ import 'package:yinzo/Logements/Providers/logement_provider.dart';
 import 'package:yinzo/Logements/Widgets/logement_array.dart';
 import 'package:yinzo/Logements/Widgets/show_categories.dart';
 import 'package:yinzo/Services/Dio/dio_service.dart';
+import 'package:yinzo/Utils/handle_logement_owner_photo.dart';
 
 class AllLogementScreen extends StatefulWidget {
   const AllLogementScreen({super.key});
@@ -125,22 +126,11 @@ class _AllLogementScreenState extends State<AllLogementScreen> {
                               final owner = logement.owner;
 
                               // Gestion de l'image du propriétaire
-                              String photoPath = owner["photo"];
-                              String photoUrl;
-
-                              if (photoPath.isNotEmpty) {
-                                if (photoPath.startsWith("/")) {
-                                  photoUrl = '$_baseUrl$photoPath';
-                                } else if (photoPath.startsWith("http") ||
-                                    photoPath.startsWith("https")) {
-                                  photoUrl = photoPath;
-                                } else {
-                                  photoUrl = '$_baseUrl/$photoPath';
-                                }
-                              } else {
-                                // Si l'utilisateur n'a pas de photo de profile
-                                photoUrl = "";
-                              }
+                              String photoUrl =
+                                  handleThePhotoOfTheLogementOwner(
+                                    owner,
+                                    _baseUrl,
+                                  );
 
                               return Card(
                                 margin: const EdgeInsets.only(bottom: 20),
@@ -167,9 +157,8 @@ class _AllLogementScreenState extends State<AllLogementScreen> {
                                               photoUrl.isNotEmpty
                                                   ? NetworkImage(photoUrl)
                                                   : const AssetImage(
-                                                        "assets/images/profil.jpg",
-                                                      )
-                                                      as ImageProvider,
+                                                    "assets/images/profil.jpg",
+                                                  ),
                                         ),
                                         title: Text(
                                           "${owner["first_name"]} ${owner["last_name"]}",
