@@ -4,17 +4,31 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:yinzo/Logements/Providers/category_provider.dart';
 import 'package:yinzo/Logements/Providers/logement_provider.dart';
+import 'package:yinzo/Services/Dio/dio_service.dart';
 import 'package:yinzo/Users/Provider/auth_provider.dart';
+import 'package:yinzo/Users/Provider/user_logement_provider.dart';
 import 'package:yinzo/Utils/urlpatterns.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await BudgetHistory.initDatabase();
-  initializeDateFormatting('fr_FR').then((_) => runApp(YinzoApp()));
+
+  // Initialisation de l'authentification
+  // et ajout de l'intercepteur pour le rafraîchissement du token
+  final authProvider = AuthProvider();
+  await authProvider.initialize();
+
+  final dio = DioService.getDioInstanceWithBaseUrl();
+  dio.interceptors.add(TokenRefreshInterceptor(authProvider));
+
+  initializeDateFormatting(
+    'fr_FR',
+  ).then((_) => runApp(YinzoApp(authProvider: authProvider)));
 }
 
 class YinzoApp extends StatelessWidget {
-  const YinzoApp({super.key});
+  final AuthProvider authProvider;
+  const YinzoApp({super.key, required this.authProvider});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +36,8 @@ class YinzoApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => LogementProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => authProvider),
+        ChangeNotifierProvider(create: (_) => UserLogementProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
