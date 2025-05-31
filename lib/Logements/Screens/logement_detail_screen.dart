@@ -6,26 +6,20 @@ import 'package:provider/provider.dart';
 import 'package:yinzo/Chat/Screens/messages_screen.dart';
 import 'package:yinzo/Logements/Providers/logement_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:yinzo/Services/Dio/dio_service.dart';
 import 'package:yinzo/Services/call_service.dart';
+import 'package:yinzo/Utils/handle_logement_owner_photo.dart';
 
-// ignore: must_be_immutable
 class LogementDetailsScreen extends StatefulWidget {
-  LogementDetailsScreen({super.key, required this.logementId});
+  final String logementId;
 
-  String logementId;
+  const LogementDetailsScreen({super.key, required this.logementId});
 
   @override
   State<LogementDetailsScreen> createState() => _LogementDetailsScreenState();
 }
 
 class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
-  final List<String> imageUrls = [
-    'assets/images/premium_photo.jpeg',
-    'assets/images/Best_Modern_House_Design.jpg',
-    'assets/images/Front_main_page.jpg',
-    'assets/images/Gallery_House_Main.jpg',
-  ];
-
   int currentImage = 1;
   double userRating = 3.5;
   final TextEditingController _commentController = TextEditingController();
@@ -107,6 +101,11 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
               return Center(child: CircularProgressIndicator());
             }
             final logement = provider.logementDetails!;
+            final owner = logement.owner;
+            final photoUrl = handleThePhotoOfTheLogementOwner(
+              owner,
+              DioService.baseUrl,
+            );
 
             return SingleChildScrollView(
               padding: const EdgeInsets.only(bottom: 30),
@@ -266,9 +265,12 @@ class _LogementDetailsScreenState extends State<LogementDetailsScreen> {
                         ListTile(
                           leading: CircleAvatar(
                             maxRadius: 30,
-                            backgroundImage: NetworkImage(
-                              logement.owner["photo"],
-                            ),
+                            backgroundImage:
+                                photoUrl.isNotEmpty
+                                    ? NetworkImage(photoUrl)
+                                    : const AssetImage(
+                                      "assets/images/profil.jpg",
+                                    ),
                           ),
                           title: Text(
                             "${logement.owner["first_name"]} ${logement.owner["last_name"]}",
