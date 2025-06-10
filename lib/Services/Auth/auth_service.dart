@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:yinzo/Services/SecureStorage/secure_storage_service.dart';
 import 'package:yinzo/Users/Model/user_model.dart';
@@ -56,5 +57,29 @@ class AuthService {
   Future<bool> isTokenValid() async {
     final token = await _secureStorage.readToken("accessToken");
     return token != null && !JwtDecoder.isExpired(token);
+  }
+
+  Future<void> activateTemporaryUserAccount(String userId, Dio dio) async {
+    try {
+      final _ = await dio.post(
+        'account/activate-temporary-account/',
+        data: {'user_id': userId},
+      );
+    } catch (e) {
+      print("Erreur lors de l'activation du compte temporaire : $e");
+      throw Exception("Échec de l'activation du compte temporaire");
+    }
+  }
+
+  Future<void> deactivateTemporaryUserAccount(String userId, Dio dio) async {
+    try {
+      final _ = await dio.post(
+        'account/deactivate-temporary-account/',
+        data: {'user_id': userId},
+      );
+    } catch (e) {
+      print("Erreur lors de la désactivation du compte temporaire : $e");
+      throw Exception("Échec de la désactivation du compte temporaire");
+    }
   }
 }

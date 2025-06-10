@@ -141,7 +141,7 @@ class _UserLogementScreenState extends State<UserLogementScreen> {
                             Icons.star,
                             color: Theme.of(context).primaryColor,
                           ),
-                          Text("${logement.averageRating}"),
+                          Text(logement.averageRating.toStringAsFixed(2)),
                         ],
                       ),
                       const Spacer(),

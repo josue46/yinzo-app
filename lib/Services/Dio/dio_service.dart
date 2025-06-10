@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:yinzo/Users/Provider/auth_provider.dart';
 
 class DioService {
-  static const String _baseUrl = "http://192.168.98.146:8000/api/";
+  static const String _baseUrl = "http://192.168.73.146:8000/api/";
   static const int _connectTimeout = 15000;
   static const int _receiveTimeout = 15000;
 
@@ -112,7 +112,7 @@ class TokenRefreshInterceptor extends Interceptor {
       'account/login/',
       'account/signup/',
       'account/token/refresh/',
-      'publish/logement/',
+      'logement/publish/',
       'user/logements/',
       'user/logement/<str:pk>/delete',
       'conversations/',

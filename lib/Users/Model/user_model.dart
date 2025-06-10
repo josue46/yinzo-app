@@ -6,6 +6,7 @@ class UserData {
   final String userId;
   final String email;
   final DateTime dateJoined;
+  final bool isAccountActive;
 
   UserData({
     required this.username,
@@ -15,6 +16,7 @@ class UserData {
     required this.dateJoined,
     required this.firstName,
     required this.lastName,
+    required this.isAccountActive,
   });
 
   factory UserData.fromToken(Map<String, dynamic> payload) {
@@ -26,6 +28,7 @@ class UserData {
       dateJoined: DateTime.parse(payload['date_joined']).toLocal(),
       firstName: payload['first_name'] ?? '',
       lastName: payload['last_name'] ?? '',
+      isAccountActive: payload['is_active'],
     );
   }
 }

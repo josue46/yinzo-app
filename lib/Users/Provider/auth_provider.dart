@@ -1,174 +1,3 @@
-// import 'dart:async';
-// import 'package:dio/dio.dart';
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-// import 'package:yinzo/Services/Auth/auth_service.dart';
-// import 'package:yinzo/Services/Dio/dio_service.dart';
-// import 'package:yinzo/Services/SecureStorage/secure_storage_service.dart';
-// import 'package:yinzo/Users/Model/user_model.dart';
-
-// enum AuthStatus { connected, disconnected }
-
-// class AuthProvider with ChangeNotifier {
-//   String? _accessToken;
-//   String? _refreshToken;
-//   UserData? _userData;
-//   bool _isLoading = false;
-//   AuthStatus _authStatus = AuthStatus.disconnected;
-
-//   String? get accessToken => _accessToken;
-//   String? get refreshToken => _refreshToken;
-//   UserData? get userData => _userData;
-
-//   AuthStatus get authStatus => _authStatus;
-//   bool get isLoading => _isLoading;
-
-//   final dio = DioService.getDioInstanceWithBaseUrl();
-//   final SecureStorageService _secureStorage = SecureStorageService();
-
-//   Future<String?> signup({
-//     required String username,
-//     required String firstName,
-//     required String lastName,
-//     required String email,
-//     required String password,
-//   }) async {
-//     _isLoading = true;
-//     notifyListeners();
-
-//     try {
-//       final Map<String, String> data = {
-//         "username": username,
-//         "first_name": firstName,
-//         "last_name": lastName,
-//         "email": email,
-//         "password": password,
-//       };
-
-//       final response = await dio.post(
-//         "account/signup/",
-//         data: data,
-//         options: Options(contentType: 'application/json'),
-//       );
-
-//       if (response.statusCode == 200 || response.statusCode == 201) {
-//         return null;
-//       } else {
-//         return response.data["detail"] ??
-//             "Une erreur est survenue lors de la création de votre compte.";
-//       }
-//     } catch (e) {
-//       return "Erreur réseau : $e";
-//     } finally {
-//       _isLoading = false;
-//       notifyListeners();
-//     }
-//   }
-
-//   // Connexion de l'utilisateur
-//   Future<String?> login({
-//     required String username,
-//     required String password,
-//   }) async {
-//     _isLoading = true;
-//     notifyListeners();
-
-//     try {
-//       final response = await dio.post(
-//         "account/login/",
-//         data: {"username": username, "password": password},
-//         options: Options(contentType: "application/json"),
-//       );
-
-//       if (response.statusCode == 200) {
-//         AuthService authService = AuthService();
-//         final token = response.data;
-
-//         _userData = await authService.handleAuthResponse(
-//           token as Map<String, dynamic>,
-//         );
-//         _authStatus = AuthStatus.connected;
-//         _accessToken = token["access_token"];
-//         _refreshToken = token["refresh_token"];
-//         return null;
-//       }
-//       return response.data["detail"] ?? "Une erreur inconnue s'est produite.";
-//     } catch (e) {
-//       return "Erreur sur le réseau: $e";
-//     } finally {
-//       _isLoading = false;
-//       notifyListeners();
-//     }
-//   }
-
-//   Future<void> loadAccessToken() async {
-//     _accessToken = await _secureStorage.readToken("accessToken");
-//     if (_accessToken != null) {
-//       _authStatus = AuthStatus.connected;
-//     } else {
-//       _authStatus = AuthStatus.disconnected;
-//     }
-//     notifyListeners();
-//   }
-
-//   // reconnecter l'utilisateur avec le refresh token
-//   Future<void> reconnect() async {
-//     _isLoading = true;
-//     notifyListeners();
-
-//     try {
-//       _refreshToken = await _secureStorage.readToken("refreshToken");
-//       if (_refreshToken == null) {
-//         _authStatus = AuthStatus.disconnected;
-//         notifyListeners();
-//         return;
-//       }
-//       final response = await dio.post(
-//         "account/refresh/token/",
-//         data: {"refresh": _refreshToken},
-//         options: Options(contentType: "application/json"),
-//       );
-//       if (response.statusCode == 200) {
-//         final token = response.data;
-//         _accessToken = token["access_token"];
-//         await _secureStorage.saveToken("accessToken", _accessToken!);
-//         _authStatus = AuthStatus.connected;
-//       } else {
-//         _authStatus = AuthStatus.disconnected;
-//       }
-//     } catch (e) {
-//       _authStatus = AuthStatus.disconnected;
-//       print("Erreur lors de la reconnexion: $e");
-//     } finally {
-//       _isLoading = false;
-//       notifyListeners();
-//     }
-//   }
-
-//   Future<void> loadRefreshToken() async {
-//     _refreshToken = await _secureStorage.readToken("refreshToken");
-//     if (_refreshToken != null) {
-//       _authStatus = AuthStatus.connected;
-//     } else {
-//       _authStatus = AuthStatus.disconnected;
-//     }
-//     notifyListeners();
-//   }
-
-//   // Déconnexion de l'utilisateur
-//   Future<void> logout() async {
-//     await _secureStorage.clear();
-//     _authStatus = AuthStatus.disconnected;
-//     _accessToken = null;
-//     _refreshToken = null;
-//     notifyListeners();
-//   }
-
-//   static AuthProvider of(BuildContext context, {bool listen = true}) {
-//     return Provider.of<AuthProvider>(context, listen: listen);
-//   }
-// }
-
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -189,6 +18,7 @@ class AuthProvider with ChangeNotifier {
   final Dio _dio = DioService.getDioInstanceWithBaseUrl();
   final SecureStorageService _secureStorage = SecureStorageService();
   final AuthService _authService = AuthService();
+  Map<String, dynamic>? _tempCredentials;
 
   // Getters
   String? get accessToken => _accessToken;
@@ -233,7 +63,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<String?> signup({
+  Future<String> signup({
     required String username,
     required String firstName,
     required String lastName,
@@ -256,15 +86,46 @@ class AuthProvider with ChangeNotifier {
         options: Options(contentType: 'application/json'),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return null;
+      if (response.statusCode == 201) {
+        // stock temporairement les credentiels de l'utilisateur
+        // pour permettre la connexion après publication.
+        final userId = response.data['user_id'];
+        _tempCredentials = {
+          'username': username,
+          'password': password,
+          "userId": userId,
+        };
+        // active temporairement le compte
+        await _authService.activateTemporaryUserAccount(userId, _dio);
+        return "success";
       }
-      return response.data["detail"] ?? "Erreur lors de la création du compte";
+
+      return (response.data["username"] != null
+          ? response.data["username"][0]
+          : response.data["email"] != null
+          ? response.data["email"][0]
+          : "Erreur lors de la création du compte");
     } on DioException catch (e) {
       return _handleDioError(e);
     } finally {
       _authStatus = AuthStatus.disconnected;
       notifyListeners();
+    }
+  }
+
+  Future<void> connectTemporarilyUser() async {
+    /// This method is called before a user publish a logement
+    /// and needs to activate their account.
+    /// It uses the temporary credentials stored during signup to log in.
+    try {
+      if (_tempCredentials != null) {
+        await login(
+          username: _tempCredentials!['username'],
+          password: _tempCredentials!['password'],
+        );
+      }
+    } finally {
+      _tempCredentials = null;
     }
   }
 
@@ -286,7 +147,9 @@ class AuthProvider with ChangeNotifier {
         await _handleSuccessfulLogin(response.data as Map<String, dynamic>);
         return null;
       }
-      return response.data["detail"] ??
+      print("DÉTAIL DE L'ERREUR");
+      print(response.data);
+      return response.data["non_field_errors"][0] ??
           "Nom d'utilisateur ou mot de passe incorrect";
     } on DioException catch (e) {
       return _handleDioError(e);
