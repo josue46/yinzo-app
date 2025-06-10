@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:yinzo/Logements/Models/logement.dart';
@@ -19,14 +18,14 @@ class LogementProvider with ChangeNotifier {
 
   List get commentsLogement => _commentsLogement;
 
-  final Dio client = DioService.getDioInstanceWithBaseUrl();
+  final Dio _dio = DioService.getDioInstanceWithBaseUrl();
 
   Future<void> loadLogements() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final response = await client.get("logements/");
+      final response = await _dio.get("logements/");
       if (response.statusCode == 200) {
         _logements =
             (response.data as List)
@@ -47,8 +46,8 @@ class LogementProvider with ChangeNotifier {
 
     try {
       final responses = await Future.wait([
-        client.get("logement/$logementId/details/"),
-        client.get("load/comments/$logementId/"),
+        _dio.get("logement/$logementId/details/"),
+        _dio.get("load/comments/$logementId/"),
       ]);
 
       for (int i = 0; i < responses.length; i++) {
@@ -78,7 +77,7 @@ class LogementProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await client.get("filter/logements-by/category/$slug/");
+      final response = await _dio.get("filter/logements-by/category/$slug/");
       _logements =
           (response.data as List)
               .map((item) => Logement.fromJson(item as Map<String, dynamic>))
@@ -91,72 +90,59 @@ class LogementProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String?> publishLogement(
-    String token, {
-    required String description,
-    required String price,
-    required String warranty,
-    required String category,
-    required String location,
-    required String ownerNumber,
-    required String city,
+  Future<String> publishLogement({
+    required String token,
     required List<File> images,
-    int? visiteFee,
-    int? commissionMonth,
-    int? numberOfRooms,
-    bool? forRent,
+    required Map<String, dynamic> logementData,
   }) async {
     _isLoading = true;
     notifyListeners();
 
-    // Convertir chaque image en MultipartFile
-    List<MultipartFile> multipartImages = [];
-    for (File image in images) {
-      String imageName = image.path.split("/").last;
-      multipartImages.add(
-        await MultipartFile.fromFile(image.path, filename: imageName),
-      );
-    }
-
-    final data = FormData.fromMap({
-      "description": description,
-      "price": price,
-      "category": category,
-      "location": location,
-      "owner_number": ownerNumber,
-      "city": city,
-      "warranty": warranty,
-      "visite_fee": visiteFee,
-      "commission_month": commissionMonth,
-      "number_of_rooms": numberOfRooms,
-      "for_rent": forRent,
-      "images": multipartImages,
-    });
-
     try {
-      final response = await client.post(
-        "publish/logement/",
-        data: data,
+      final formData = FormData.fromMap({
+        ...logementData,
+        'images': await _prepareImages(images),
+      });
+
+      final response = await _dio.post(
+        'logement/publish/',
+        data: formData,
         options: Options(
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "Authorization": "Bearer $token",
-          },
+          headers: {'Authorization': 'Bearer $token'},
+          contentType: 'multipart/form-data',
         ),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        const String successMessage = "Votre logement a été publié";
-        return successMessage;
+      if (response.statusCode == 201) {
+        return 'Logement publié avec succès !';
+      } else if (response.statusCode == 401) {
+        return response.data['detail'];
       }
-    } catch (error) {
-      const String errorMessage = "Erreur lors de la publication";
-      print(error);
-      return "$errorMessage: $error";
+      return "Echec de publication: ${response.data['detail']}";
+    } on DioException catch (e) {
+      throw _handlePublishError(e);
     } finally {
       _isLoading = false;
       notifyListeners();
     }
-    return null;
+  }
+
+  Future<List<MultipartFile>> _prepareImages(List<File> images) async {
+    return await Future.wait(
+      images.map(
+        (image) async => await MultipartFile.fromFile(
+          image.path,
+          filename: image.path.split('/').last,
+        ),
+      ),
+    );
+  }
+
+  String _handlePublishError(DioException e) {
+    if (e.response?.statusCode == 400) {
+      final errors = e.response?.data as Map<String, dynamic>;
+      return errors['images']?.first ?? 'Erreur de validation';
+    }
+    return 'Erreur lors de la publication: ${e.message}';
   }
 }
